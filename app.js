@@ -57,7 +57,7 @@ function drawMinionSprites() {
   ctx.font = "10px monospace";
   
   minions.forEach((minion) => {
-    ctx.drawImage(minion.getCurrentSprite(), minion.position.x, minion.position.y, minion.width(minion.getCurrentSprite()), minion.height);
+    ctx.drawImage(minion.getCurrentSprite(), minion.finalPosition().x, minion.finalPosition().y, minion.width(minion.getCurrentSprite()), minion.height);
     ctx.fillText(`${minion.name}`, minion.position.x + 22, minion.position.y - 5);
   })
 }
@@ -79,22 +79,32 @@ function minionNames() {
   return minions.map(minion => minion.name);
 }
 
+function taken(name) {
+  return minionNames().includes(name);
+}
+
 // Input management
 
 function handleKeypress(event) {
   if (event.code == "Enter") {
     let instructions = parseInstructions(inputBlock.value.split('\n').filter((i) => i != '').slice(-1)[0]);
-    let minion;
+    let selectedMinions;
     
     if (minionNames().includes(instructions[0])) {
-      minion = minions.filter(m => m.name == instructions[0])[0];
+      selectedMinions = minions.filter(m => m.name == instructions[0]);
       instructions.shift(); 
+    } else if (instructions[0] == 'all') {
+      selectedMinions = minions;
+      instructions.shift()
     } else
-        minion = minions[0];
+      selectedMinions = [minions[0]];
 
     if (instructions.length > 0 && Object.keys(instructionsTree).includes(instructions[0])){
-      instructionsTree[instructions[0]](minion, (instructions[1] || null));
-    }
+      selectedMinions.forEach((minion) => {
+        instructionsTree[instructions[0]](minion, (instructions[1] || null));
+      })
+    } else
+      selectedMinions.forEach((minion) => minion.stop());
 
     addTerminalSym();
   }
@@ -107,19 +117,25 @@ function parseInstructions(instructions) {
 let instructionsTree = {
   move: (minion, direction) => {
     if (Object.keys(minion.movements()).includes(direction)) {
-      minion.currentAnimationStep = 0;
       minion.direction = direction;
       minion.go();
     } else
       minion.stop();
   },
-  build: (minion) => {
-    minion.currentAnimationStep = 0;
-    minion.stop();
-    minion.state = 'build';
+  build: (minion) => { minion.build() },
+  stop: (minion) => { minion.stop() },
+  rename: (minion, name) => { if (!taken(name)) minion.name = name },
+  create: (minion, name) => {
+    if (!taken(name) && name != '' && name != null) {
+      instructionsTree.build(minion);
+      minion.actionBuffer.set(5, instructionsTree.newMinion, [minion, name]);
+    }
   },
-  stop: (minion) => { minion.currentAnimationStep = 0; minion.stop() },
-  rename: (minion, name) => { minion.name = name },
+  newMinion: (minion, name) => {
+    minion.stop();
+    minions.push(new Minion(name, minion.type, minion.height, {x: minion.position.x - minion.height - 10, y: minion.position.y}, minion.canvasSize));
+  },
+  reset: () => app(),
   clear: () => { setTimeout(() => {inputBlock.value = ''}, 10) }
 }
 

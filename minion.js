@@ -6,7 +6,8 @@ export class Minion {
     this.name = name;
     this.type = type;
     this.height = height;
-    this.position = position;
+    this.position = {...position, ...{correction: {x: 0, y: 0}}};
+    this.actionBuffer = new ActionBuffer(this);
 
     // Inner properties
     this.state = 'idle';
@@ -71,21 +72,60 @@ export class Minion {
     return this.state == 'go' && !this.isBlocked();
   }
 
+  shouldStop() {
+    return this.state == 'go' && this.isBlocked();
+  }
+
   move() {
     if (this.shouldMove())
       this.movements()[this.direction]();
+    else if (this.shouldStop())
+      this.stop();
   }
 
   stop() {
+    this.reset();
     this.state = 'idle'
   }
 
   go() {
+    this.reset();
     this.state = 'go'
+  }
+
+  build() {
+    this.stop();
+    this.currentAnimationStep = 0;
+    this.state = 'build';
+    this.setCorrection()
+  }
+
+  setCorrection() {
+    this.position.correction = {
+      x: Math.floor(this.height - this.width(this.getCurrentSprite())),
+      y: 0
+    }
+    console.log('correction: ', this.position.correction)
+  }
+
+  reset() {
+    this.resetCorrection();
+    this.currentAnimationStep = 0;
+  }
+
+  resetCorrection() {
+    this.position.correction = {x: 0, y: 0}
   }
 
   updatePostion() {
     this.move(this.direction);
+  }
+
+  finalPosition() {
+    return {
+      x: this.position.x + this.position.correction.x,
+      y: this.position.y + this.position.correction.y
+    }
   }
 
   updateSpriteSteps() {
@@ -93,10 +133,53 @@ export class Minion {
     
     if (this.currentAnimationStep > this.minionImages[this.type][this.state].length - 1)
       this.currentAnimationStep = 1;
+
+    this.actionBuffer.advance();
   }
 
   getCurrentSprite() {
     return this.minionImages ? this.minionImages[this.type][this.state][this.currentAnimationStep] : null;
+  }
+}
+
+class ActionBuffer {
+  constructor(minion) {
+    this.minion = minion;
+    this.currentCounter = 0;
+    this.maxCounter = 0;
+    this.callback = null;
+    this.args = [];
+  }
+
+  set(numOfCycles, callback, args) {
+    this.maxCounter = numOfCycles * 5;
+    this.currentCounter = 0;
+    this.callback = callback;
+    this.args = args;
+  }
+
+  isActive() {
+    return this.callback && this.currentCounter < this.maxCounter
+  }
+
+  reset() {
+    this.currentCounter = 0;
+    this.maxCounter = 0;
+    this.callback = null;
+    this.args = [];
+  }
+
+  advance() {
+    if (!this.isActive()) return;
+
+    this.currentCounter ++;
+    if (this.currentCounter == this.maxCounter)
+      this.perform()
+  }
+
+  perform() {
+    this.callback(...this.args);
+    this.reset();
   }
 }
 
