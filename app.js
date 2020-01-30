@@ -1,82 +1,17 @@
-// Initial data
-let minion = {
-  name: 'Thousy',
-  state: 'idle',
-  type: 'robot',
-  currentStep: 0,
-  direction: 'right',
-  height: 100,
-  width: (img) => img.width / img.height * minion.height,
-  position: {
-    x: 0,
-    y: 500
-  },
-  movementLimit: {
-    left: () => {return {x: 0, y: null}},
-    right: () => {return {x: canvasSize.x - minion.height, y: null}},
-    up: () => {return {x: null, y: 0}},
-    down: () => {return {x: null, y: canvasSize.y - minion.height}}
-  },
-  isBlocked: () => {
-    return (minion.movementLimit[minion.direction]().x == null && minion.movementLimit[minion.direction]().y == minion.position.y) ||
-    (minion.movementLimit[minion.direction]().y == null && minion.movementLimit[minion.direction]().x == minion.position.x)
-  },
-  move: {
-    left: () => { minion.position.x-- },
-    right: () => { minion.position.x++ },
-    up: () => { minion.position.y-- },
-    down: () => { minion.position.y++ }
-  },
-  stop: () => {
-    minion.state = 'idle'
-  },
-  go: () => {
-    minion.state = 'go'
-  }
-};
+import { Minion } from './minion.js';
 
-let avatarSteps = {
-  robot: {
-    idle: 5,    
-    go: 5,
-    die: 9,
-    build: 7
-  }
-}
+// Initial data
 
 let input = "";
-let ctx, avatarImages, spriteInterval, inputBlock;
+let minions, ctx, spriteInterval, writeEvent, inputBlock;
 let canvasSize = {};
 
 // Initialization
 spriteInterval = window.setInterval(updateSpriteSteps, 150);
-avatarImages = loadImages();
 
 function updateSpriteSteps() {
-  minion.currentStep ++;
-  if (minion.currentStep > avatarImages[minion.type][minion.state].length - 1)
-    minion.currentStep = 0;
-}
-
-function getSpriteImage(name, state, index) {
-  return `assets/avatars/${name}/${state}/${index}.png`
-}
-
-function loadImages() {
-  let images = {};
-
-  for (let name in avatarSteps) {
-    images[name] = {};
-    for (let state in avatarSteps[name]) {
-      images[name][state] = Array(avatarSteps[name][state]).fill(0).map((el, index) => {
-        let img = new Image();
-        img.src = getSpriteImage(name, state, index + 1);
-        return img;
-      });
-    }
-  }
-
-  return images;
+  if (minions)
+    minions.forEach((minion) => minion.updateSpriteSteps());
 }
 
 // Main app
@@ -96,42 +31,52 @@ function app() {
   canvas.height = canvasSize.y;
   canvas.width = canvasSize.x;
 
-  centerAvatar();
+  minions = window.theMinions = [new Minion('matt', 'robot', 100, canvasCenter(100), canvasSize)];
 
   ctx = canvas.getContext("2d");
   window.requestAnimationFrame(draw);
 }
 
-let centerAvatar = () => {
-  minion.position.x = canvasSize.x / 2 - minion.height / 2;
-  minion.position.y = canvasSize.y / 2 - minion.height / 2;
+let canvasCenter = (minionHeight) => {
+  return {
+    x: Math.floor(canvasSize.x / 2 - minionHeight / 2),
+    y: Math.floor(canvasSize.y / 2 - minionHeight / 2)
+  }
 }
 
 function draw() {
   updatePositions();
   ctx.globalCompositeOperation = 'destination-over';
   ctx.clearRect(0, 0, canvasSize.x, canvasSize.y); // clear canvas
-  ctx.drawImage(getCurrentSprite(), minion.position.x, minion.position.y, minion.width(getCurrentSprite()), minion.height);
+  drawMinionSprites();
 
   window.requestAnimationFrame(draw);
 }
 
+function drawMinionSprites() {
+  ctx.font = "10px monospace";
+  
+  minions.forEach((minion) => {
+    ctx.drawImage(minion.getCurrentSprite(), minion.position.x, minion.position.y, minion.width(minion.getCurrentSprite()), minion.height);
+    ctx.fillText(`${minion.name}`, minion.position.x + 22, minion.position.y - 5);
+  })
+}
+
 function getCurrentSprite() {
-  return avatarImages ? avatarImages[minion.type][minion.state][minion.currentStep] : null;
+  return minionImages ? minionImages[minion.type][minion.state][minion.currentAnimationStep] : null;
 }
 
 function updatePositions() {
-  updateAvatarPosition();
+  updateMinionPositions();
 }
 
-function updateAvatarPosition() {
-  if (minion.state == 'go') {
-    if (minion.isBlocked()) {
-      minion.stop()
-    } else {
-      minion.move[minion.direction]();
-    }
-  }
+function updateMinionPositions() {
+  if (minions)
+    minions.forEach((minion) => minion.move())
+}
+
+function minionNames() {
+  return minions.map(minion => minion.name);
 }
 
 // Input management
@@ -139,9 +84,17 @@ function updateAvatarPosition() {
 function handleKeypress(event) {
   if (event.code == "Enter") {
     let instructions = parseInstructions(inputBlock.value.split('\n').filter((i) => i != '').slice(-1)[0]);
+    let minion;
     
-    if (instructions.length > 0 && Object.keys(instructionsTree).includes(instructions[0]))
-      instructionsTree[instructions[0]](instructions[1] || null);
+    if (minionNames().includes(instructions[0])) {
+      minion = minions.filter(m => m.name == instructions[0])[0];
+      instructions.shift(); 
+    } else
+        minion = minions[0];
+
+    if (instructions.length > 0 && Object.keys(instructionsTree).includes(instructions[0])){
+      instructionsTree[instructions[0]](minion, (instructions[1] || null));
+    }
 
     addTerminalSym();
   }
@@ -152,20 +105,21 @@ function parseInstructions(instructions) {
 }
 
 let instructionsTree = {
-  move: (direction) => {
-    if (Object.keys(minion.move).includes(direction)) {
-      minion.currentStep = 0;
+  move: (minion, direction) => {
+    if (Object.keys(minion.movements()).includes(direction)) {
+      minion.currentAnimationStep = 0;
       minion.direction = direction;
       minion.go();
     } else
       minion.stop();
   },
-  build: () => {
-    minion.currentStep = 0;
+  build: (minion) => {
+    minion.currentAnimationStep = 0;
     minion.stop();
     minion.state = 'build';
   },
-  stop: () => { minion.currentStep = 0; minion.stop() },
+  stop: (minion) => { minion.currentAnimationStep = 0; minion.stop() },
+  rename: (minion, name) => { minion.name = name },
   clear: () => { setTimeout(() => {inputBlock.value = ''}, 10) }
 }
 
