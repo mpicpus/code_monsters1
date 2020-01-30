@@ -122,6 +122,10 @@ let instructionsTree = {
     } else
       minion.stop();
   },
+  speed: (minion, direction) => {
+    if (Object.keys(minion.changeSpeed()).includes(direction))
+      minion.changeSpeed()[direction]();
+  },
   build: (minion) => { minion.build() },
   stop: (minion) => { minion.stop() },
   rename: (minion, name) => { if (!taken(name)) minion.name = name },

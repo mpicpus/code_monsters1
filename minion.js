@@ -8,6 +8,7 @@ export class Minion {
     this.height = height;
     this.position = {...position, ...{correction: {x: 0, y: 0}}};
     this.actionBuffer = new ActionBuffer(this);
+    this.speed = 0.25;
 
     // Inner properties
     this.state = 'idle';
@@ -61,10 +62,10 @@ export class Minion {
 
   movements() {
     return {
-      left: () => { this.position.x-- },
-      right: () => { this.position.x++ },
-      up: () => { this.position.y-- },
-      down: () => { this.position.y++ }
+      left: () => { this.position.x -= this.speed },
+      right: () => { this.position.x += this.speed },
+      up: () => { this.position.y -= this.speed },
+      down: () => { this.position.y += this.speed }
     };
   }
 
@@ -98,6 +99,13 @@ export class Minion {
     this.currentAnimationStep = 0;
     this.state = 'build';
     this.setCorrection()
+  }
+
+  changeSpeed() {
+    return {
+      up: () => this.speed += 0.25,
+      down: () => this.speed -= 0.25
+    }
   }
 
   setCorrection() {
