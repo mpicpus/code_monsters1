@@ -1,3 +1,8 @@
+import {ActionBuffer} from './action-buffer.js'
+import {SpriteSet} from './sprite-set.js'
+
+let  spriteSets = []
+
 // Minion class
 export class Minion {
   constructor(name, type, height, position, canvasSize) {
@@ -15,8 +20,6 @@ export class Minion {
     this.currentAnimationStep = 1;
     this.direction = 'right';
 
-    this.avatarSteps = avatarSteps;
-    this.minionImages = this.loadImages();
     this.sprites = this.getSprites();
   }
 
@@ -27,34 +30,13 @@ export class Minion {
 
   // Utils
   getSprites() {
-    let sprite = sprites.filter(set => set.type == this.type)[0];
-    if (!sprite) {
-      sprite = new SpriteSet(this.type);
-      sprites.push(sprite);
+    let sprites = spriteSets.filter(set => set.type == this.type)[0];
+    if (!sprites) {
+      sprites = new SpriteSet(this.type);
+      spriteSets.push(sprites);
     }
 
-    return sprite
-  }
-
-  loadImages() {
-    let images = {};
-
-    for (let type in this.avatarSteps) {
-      images[type] = {};
-      for (let state in this.avatarSteps[type]) {
-        images[type][state] = Array(avatarSteps[type][state]).fill(0).map((el, index) => {
-          let img = new Image();
-          img.src = this.getSpriteImage(type, state, index + 1);
-          return img;
-        });
-      }
-    }
-
-    return images;
-  }
-
-  getSpriteImage(type, state, index) {
-    return `assets/avatars/${type}/${state}/${index}.png`
+    return sprites
   }
 
   movementLimit(direction) {
@@ -150,98 +132,13 @@ export class Minion {
   updateSpriteSteps() {
     this.currentAnimationStep ++;
     
-    if (this.currentAnimationStep > this.minionImages[this.type][this.state].length - 1)
+    if (this.currentAnimationStep > this.sprites.images[this.state].length - 1)
       this.currentAnimationStep = 1;
 
     this.actionBuffer.advance();
   }
 
   getCurrentSprite() {
-    return this.minionImages ? this.minionImages[this.type][this.state][this.currentAnimationStep] : null;
-  }
-}
-
-// SPRITES
-class SpriteSet {
-  constructor(type, states) {
-    this.type = type || 'robot';
-    this.states = states || {
-                              idle: 5,    
-                              go: 5,
-                              die: 9,
-                              build: 7
-                            };
-    this.images = this.loadImages()
-  }
-
-  loadImages() {
-    let images = {};
-    
-    for (let state in this.states) {
-      images[state] = Array(this.states[state]).fill(0).map((el, index) => {
-        let img = new Image();
-        img.src = this.getSpriteImage(state, index + 1);
-        return img;
-      });
-    }
-
-    return images;
-  }
-
-  getSpriteImage(state, index) {
-    return `assets/avatars/${this.type}/${state}/${index}.png`
-  }
-}
-
-let sprites = [];
-
-// Action buffer -> it allows a basic form of timed concatenation.
-class ActionBuffer {
-  constructor(minion) {
-    this.minion = minion;
-    this.currentCounter = 0;
-    this.maxCounter = 0;
-    this.callback = null;
-    this.args = [];
-  }
-
-  set(numOfCycles, callback, args) {
-    this.maxCounter = numOfCycles * 5;
-    this.currentCounter = 0;
-    this.callback = callback;
-    this.args = args;
-  }
-
-  isActive() {
-    return this.callback && this.currentCounter < this.maxCounter
-  }
-
-  reset() {
-    this.currentCounter = 0;
-    this.maxCounter = 0;
-    this.callback = null;
-    this.args = [];
-  }
-
-  advance() {
-    if (!this.isActive()) return;
-
-    this.currentCounter ++;
-    if (this.currentCounter == this.maxCounter)
-      this.perform()
-  }
-
-  perform() {
-    this.callback(...this.args);
-    this.reset();
-  }
-}
-
-let avatarSteps = {
-  robot: {
-    idle: 5,    
-    go: 5,
-    die: 9,
-    build: 7
+    return this.sprites ? this.sprites.images[this.state][this.currentAnimationStep] : null;
   }
 }

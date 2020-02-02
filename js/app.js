@@ -6,6 +6,7 @@ let input = "";
 let minions, ctx, spriteInterval, writeEvent, inputBlock;
 let canvasSize = {};
 let minionHeight = 70;
+let fontSize = 13;
 
 // Initialization
 spriteInterval = window.setInterval(updateSpriteSteps, 150);
@@ -55,16 +56,12 @@ function draw() {
 }
 
 function drawMinionSprites() {
-  ctx.font = "10px monospace";
+  ctx.font = `${fontSize}px monospace`;
   
   minions.forEach((minion) => {
     ctx.drawImage(minion.getCurrentSprite(), minion.finalPosition().x, minion.finalPosition().y, minion.width(minion.getCurrentSprite()), minion.height);
     ctx.fillText(`${minion.name}`, minion.position.x + 22, minion.position.y - 5);
   })
-}
-
-function getCurrentSprite() {
-  return minionImages ? minionImages[minion.type][minion.state][minion.currentAnimationStep] : null;
 }
 
 function updatePositions() {
@@ -102,7 +99,7 @@ function handleKeypress(event) {
 
     if (instructions.length > 0 && Object.keys(instructionsTree).includes(instructions[0])){
       selectedMinions.forEach((minion) => {
-        instructionsTree[instructions[0]](minion, (instructions[1] || null));
+        instructionsTree[instructions[0]](minion, instructions[1] || null, instructions[2] || null);
       })
     } else
       selectedMinions.forEach((minion) => minion.stop());
@@ -130,15 +127,15 @@ let instructionsTree = {
   build: (minion) => { minion.build() },
   stop: (minion) => { minion.stop() },
   rename: (minion, name) => { if (!taken(name)) minion.name = name },
-  make: (minion, name) => {
+  make: (minion, name, size) => {
     if (!taken(name) && name != '' && name != null) {
       instructionsTree.build(minion);
-      minion.actionBuffer.set(5, instructionsTree.newMinion, [minion, name]);
+      minion.actionBuffer.set(5, instructionsTree.newMinion, [minion, name, size]);
     }
   },
-  newMinion: (minion, name) => {
+  newMinion: (minion, name, size) => {
     minion.stop();
-    minions.push(new Minion(name, minion.type, minion.height, {x: minion.position.x - minion.height - 10, y: minion.position.y}, minion.canvasSize));
+    minions.push(new Minion(name, minion.type, size || minion.height, {x: minion.position.x - size - 10, y: minion.position.y}, minion.canvasSize));
   },
   reset: () => app(),
   clear: () => { setTimeout(() => {inputBlock.value = ''}, 10) }
