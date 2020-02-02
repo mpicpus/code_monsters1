@@ -5,6 +5,7 @@ import { Minion } from './minion.js';
 let input = "";
 let minions, ctx, spriteInterval, writeEvent, inputBlock;
 let canvasSize = {};
+let minionHeight = 70;
 
 // Initialization
 spriteInterval = window.setInterval(updateSpriteSteps, 150);
@@ -31,7 +32,7 @@ function app() {
   canvas.height = canvasSize.y;
   canvas.width = canvasSize.x;
 
-  minions = window.theMinions = [new Minion('matt', 'robot', 100, canvasCenter(100), canvasSize)];
+  minions = window.theMinions = [new Minion('matt', 'robot', minionHeight, canvasCenter(minionHeight), canvasSize)];
 
   ctx = canvas.getContext("2d");
   window.requestAnimationFrame(draw);
@@ -129,7 +130,7 @@ let instructionsTree = {
   build: (minion) => { minion.build() },
   stop: (minion) => { minion.stop() },
   rename: (minion, name) => { if (!taken(name)) minion.name = name },
-  create: (minion, name) => {
+  make: (minion, name) => {
     if (!taken(name) && name != '' && name != null) {
       instructionsTree.build(minion);
       minion.actionBuffer.set(5, instructionsTree.newMinion, [minion, name]);
@@ -142,6 +143,12 @@ let instructionsTree = {
   reset: () => app(),
   clear: () => { setTimeout(() => {inputBlock.value = ''}, 10) }
 }
+
+instructionsTree.m = instructionsTree.move;
+instructionsTree.s = instructionsTree.speed;
+instructionsTree.mk = instructionsTree.make;
+
+window.theInstructionsTree = instructionsTree;
 
 function addTerminalSym() {
   // setTimeout(() => {inputBlock.value += '> '}, 10)
