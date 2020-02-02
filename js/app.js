@@ -135,7 +135,7 @@ let instructionsTree = {
   },
   newMinion: (minion, name, size) => {
     minion.stop();
-    minions.push(new Minion(name, minion.type, size || minion.height, {x: minion.position.x - size - 10, y: minion.position.y}, minion.canvasSize));
+    minions.push(new Minion(name, minion.type, size || minion.height, {x: minion.position.x - size - 10, y: minion.position.y + minion.height - size}, minion.canvasSize));
   },
   reset: () => app(),
   clear: () => { setTimeout(() => {inputBlock.value = ''}, 10) }
