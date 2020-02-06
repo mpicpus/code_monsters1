@@ -1,4 +1,5 @@
 import { Minion } from './minion.js';
+import { InstructionsEngine } from './instructions-engine.js';
 
 // Initial data
 
@@ -22,7 +23,7 @@ function app() {
 
   let canvasWrapper = document.querySelector('#work-place');
   inputBlock = document.querySelector('.input-area');
-  addTerminalSym();
+  focusTextArea();
 
   canvasSize = {
     x: canvasWrapper.clientWidth,
@@ -33,9 +34,8 @@ function app() {
   canvas.height = canvasSize.y;
   canvas.width = canvasSize.x;
 
-  instructionsEngine = new InstructionsEngine();
-
   minions = window.theMinions = [new Minion('matt', 'robot', minionHeight, canvasCenter(minionHeight), canvasSize)];
+  instructionsEngine = new InstructionsEngine();
 
   ctx = canvas.getContext("2d");
   window.requestAnimationFrame(draw);
@@ -83,8 +83,6 @@ function taken(name) {
   return minionNames().includes(name);
 }
 
-// Input management
-
 function handleKeypress(event) {
   if (event.code == "Enter") {
     let instructions = parseInstructions(inputBlock.value.split('\n').filter((i) => i != '').slice(-1)[0]);
@@ -95,25 +93,22 @@ function handleKeypress(event) {
       instructions.shift(); 
     } else if (instructions[0] == 'all') {
       selectedMinions = minions;
-      instructions.shift()
+      instructions.shift();
     } else
-      selectedMinions = [minions[0]];
+      selectedMinions = [];
 
-    if (instructions.length > 0 && InstructionsEngine.methodNames().includes(instructions[0])){
+    if (selectedMinions.lenght > 0 && instructions.length > 0 && InstructionsEngine.methodNames().includes(instructions[0])){
       selectedMinions.forEach((minion) => {
         let localInstructions = Array.from(instructions);
         let method = localInstructions[0];
         localInstructions.shift();
-        try {
-          instructionsEngine[method](minion, ...localInstructions);
-        } catch {
-          debugger;
-        }
+
+        instructionsEngine[method](minion, ...localInstructions);
       })
     } else
       selectedMinions.forEach((minion) => minion.stop());
 
-    addTerminalSym();
+    focusTextArea();
   }
 }
 
@@ -121,83 +116,7 @@ function parseInstructions(instructions) {
   return instructions.split(' ').map((i) => { return i.replace(' ', '') }).filter((i) => i != '');
 }
 
-class InstructionsEngine {
-  move(minion, direction) {
-    if (Object.keys(minion.movements()).includes(direction)) {
-      minion.direction = direction;
-      minion.go();
-    } else
-      minion.stop();
-  }
-
-  speed(minion, direction) {
-    if (Object.keys(minion.changeSpeed()).includes(direction))
-      minion.changeSpeed()[direction]();
-  }
-
-  build(minion) { minion.build() }
-  stop(minion) { minion.stop() }
-  rename(minion, newName) { if (!taken(name)) minion.name = name }
-
-  make(minion, name, size) {
-    if (!taken(name) && name != '' && name != null) {
-      this.build(minion);
-      minion.actionBuffer.set(5, this.newMinion, [minion, name, size]);
-    }
-  }
-
-  newMinion(minion, name, size) {
-    minion.stop();
-    size = size || minion.height;
-    minions.push(new Minion(name, minion.type, size, {x: minion.position.x - size - 10, y: minion.position.y + minion.height - size}, minion.canvasSize));
-  }
-
-  reset() { app(); this.clear(); }
-  clear() { setTimeout(() => { inputBlock.value = '' }, 10) }
-
-  static methodNames() {
-    return Object.getOwnPropertyNames(this.prototype).filter(n => !['constructor', 'methodNames'].includes(n));
-  }
-}
-
-let instructionsTree = {
-  move: (minion, direction) => {
-    if (Object.keys(minion.movements()).includes(direction)) {
-      minion.direction = direction;
-      minion.go();
-    } else
-      minion.stop();
-  },
-  speed: (minion, direction) => {
-    if (Object.keys(minion.changeSpeed()).includes(direction))
-      minion.changeSpeed()[direction]();
-  },
-  build: (minion) => { minion.build() },
-  stop: (minion) => { minion.stop() },
-  rename: (minion, name) => { if (!taken(name)) minion.name = name },
-  make: (minion, name, size) => {
-    if (!taken(name) && name != '' && name != null) {
-      instructionsTree.build(minion);
-      minion.actionBuffer.set(5, instructionsTree.newMinion, [minion, name, size]);
-    }
-  },
-  newMinion: (minion, name, size) => {
-    minion.stop();
-    minions.push(new Minion(name, minion.type, size || minion.height, {x: minion.position.x - size - 10, y: minion.position.y + minion.height - size}, minion.canvasSize));
-  },
-  reset: () => app(),
-  clear: () => { setTimeout(() => {inputBlock.value = ''}, 10) }
-}
-
-instructionsTree.m = instructionsTree.move;
-instructionsTree.s = instructionsTree.speed;
-instructionsTree.mk = instructionsTree.make;
-
-window.theInstructionsTree = new InstructionsEngine();
-window.inst = InstructionsEngine;
-
-function addTerminalSym() {
-  // setTimeout(() => {inputBlock.value += '> '}, 10)
+function focusTextArea() {
   inputBlock.focus();
 }
 
