@@ -142,3 +142,25 @@ export class Minion {
     return this.sprites ? this.sprites.images[this.state][this.currentAnimationStep] : null;
   }
 }
+
+export class Minions {
+  constructor(collection) {
+    this.collection = collection || [];
+  }
+
+  names() {
+    return this.collection.map(minion => minion.name);
+  }
+
+  taken(name) {
+    return this.names().includes(name);
+  }
+
+  add(minion) {
+    this.collection.push(minion)
+  }
+
+  remove(minion) {
+    this.collection = this.collection.filter(m => m != minion)
+  }
+}

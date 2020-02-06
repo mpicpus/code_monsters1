@@ -1,4 +1,4 @@
-import { Minion } from './minion.js';
+import { Minion, Minions } from './minion.js';
 import { InstructionsEngine } from './instructions-engine.js';
 
 // Initial data
@@ -14,7 +14,7 @@ spriteInterval = window.setInterval(updateSpriteSteps, 150);
 
 function updateSpriteSteps() {
   if (minions)
-    minions.forEach((minion) => minion.updateSpriteSteps());
+    minions.collection.forEach((minion) => minion.updateSpriteSteps());
 }
 
 // Main app
@@ -34,8 +34,9 @@ function app() {
   canvas.height = canvasSize.y;
   canvas.width = canvasSize.x;
 
-  minions = window.theMinions = [new Minion('matt', 'robot', minionHeight, canvasCenter(minionHeight), canvasSize)];
-  instructionsEngine = new InstructionsEngine();
+  minions = window.theMinions = new Minions([new Minion('matt', 'robot', minionHeight, canvasCenter(minionHeight), canvasSize)]);
+  instructionsEngine = window.theInstructionsEngine = new InstructionsEngine(minions);
+  window.inst = InstructionsEngine;
 
   ctx = canvas.getContext("2d");
   window.requestAnimationFrame(draw);
@@ -60,7 +61,7 @@ function draw() {
 function drawMinionSprites() {
   ctx.font = `${fontSize}px monospace`;
   
-  minions.forEach((minion) => {
+  minions.collection.forEach((minion) => {
     ctx.drawImage(minion.getCurrentSprite(), minion.finalPosition().x, minion.finalPosition().y, minion.width(minion.getCurrentSprite()), minion.height);
     ctx.fillText(`${minion.name}`, minion.position.x + 22, minion.position.y - 5);
   })
@@ -72,11 +73,11 @@ function updatePositions() {
 
 function updateMinionPositions() {
   if (minions)
-    minions.forEach((minion) => minion.move())
+    minions.collection.forEach((minion) => minion.move())
 }
 
 function minionNames() {
-  return minions.map(minion => minion.name);
+  return minions.names();
 }
 
 function taken(name) {
@@ -88,16 +89,16 @@ function handleKeypress(event) {
     let instructions = parseInstructions(inputBlock.value.split('\n').filter((i) => i != '').slice(-1)[0]);
     let selectedMinions;
     
-    if (minionNames().includes(instructions[0])) {
-      selectedMinions = minions.filter(m => m.name == instructions[0]);
+    if (minions.names().includes(instructions[0])) {
+      selectedMinions = minions.collection.filter(m => m.name == instructions[0]);
       instructions.shift(); 
     } else if (instructions[0] == 'all') {
-      selectedMinions = minions;
+      selectedMinions = minions.collection;
       instructions.shift();
     } else
       selectedMinions = [];
 
-    if (selectedMinions.lenght > 0 && instructions.length > 0 && InstructionsEngine.methodNames().includes(instructions[0])){
+    if (selectedMinions.length > 0 && instructions.length > 0 && InstructionsEngine.methodNames().includes(instructions[0])){
       selectedMinions.forEach((minion) => {
         let localInstructions = Array.from(instructions);
         let method = localInstructions[0];

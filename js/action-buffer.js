@@ -1,7 +1,8 @@
 // Action buffer -> it allows a basic form of timed concatenation.
 export class ActionBuffer {
-  constructor(minion) {
+  constructor(minion, minions) {
     this.minion = minion;
+    this.minions = minions;
     this.currentCounter = 0;
     this.maxCounter = 0;
     this.callback = null;
