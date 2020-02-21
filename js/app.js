@@ -2,6 +2,7 @@ import { Minion, Minions } from './minion.js';
 import { Track, TrackSet, TrackPath } from './track.js';
 import { InstructionsEngine } from './instructions-engine.js';
 
+console.log('This is the bronx');
 // Initial data
 
 let input = "";
@@ -19,7 +20,7 @@ function updateSpriteSteps() {
 }
 
 // Main app
-function app() {
+function initialize() {
   writeEvent = document.querySelector('.input-area').addEventListener('keydown', handleKeypress)
 
   let canvasWrapper = document.querySelector('#work-place');
@@ -39,7 +40,7 @@ function app() {
   minions = new Minions();
   minions.add(minion);
 
-  instructionsEngine = window.theInstructionsEngine = new InstructionsEngine(minions);
+  instructionsEngine = new InstructionsEngine(minions, inputBlock, initialize);
   window.inst = InstructionsEngine;
   // tracks = new TrackSet();
   window.track = Track;
@@ -104,8 +105,12 @@ function handleKeypress(event) {
     } else if (instructions[0] == 'all') {
       selectedMinions = minions.collection;
       instructions.shift();
-    } else
+    } else if (InstructionsEngine.singleMethodNames().includes(instructions[0])) {
       selectedMinions = [];
+      instructionsEngine[instructions[0]]();
+    } else {      
+      selectedMinions = [];
+    }
 
     if (selectedMinions.length > 0 && instructions.length > 0 && InstructionsEngine.methodNames().includes(instructions[0])){
       selectedMinions.forEach((minion) => {
@@ -131,5 +136,5 @@ function focusTextArea() {
 }
 
 window.addEventListener('load', (event) => {
-  app()
+  initialize()
 })

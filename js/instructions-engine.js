@@ -2,8 +2,10 @@ import { Minion, Minions } from './minion.js';
 
 // Input management
 export class InstructionsEngine {
-  constructor(minions) {
+  constructor(minions, inputBlock, initialize) {
     this.minions = minions;
+    this.inputBlock = inputBlock;
+    this.initialize = initialize;
   }
 
   go(minion, direction) {
@@ -36,10 +38,18 @@ export class InstructionsEngine {
     minions.add(new Minion(name, minion.type, size, {x: minion.position.x - size - 10, y: minion.position.y + minion.height - size}, minion.canvasSize));
   }
 
-  reset() { app(); this.clear(); }
-  clear() { setTimeout(() => { inputBlock.value = '' }, 10) }
+  reset() { this.initialize(); this.clear(); }
+  clear() { setTimeout(() => { this.inputBlock.value = '' }, 10) }
+
+  static parseInstructions(instructions) {
+    return instructions.split(' ').map((i) => { return i.replace(' ', '') }).filter((i) => i != '');
+  }
 
   static methodNames() {
-    return Object.getOwnPropertyNames(this.prototype).filter(n => !['constructor', 'methodNames'].includes(n));
+    return Object.getOwnPropertyNames(this.prototype).filter(n => !['constructor'].includes(n));
+  }
+
+  static singleMethodNames() {
+    return Object.getOwnPropertyNames(this.prototype).filter((name) => this.prototype[name].length == 0)
   }
 }
