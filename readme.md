@@ -1,4 +1,4 @@
-![86b9f394.png](:assets/attachments/d5284efc.png)
+![screenshot](screenshot01.png)
 # Code Monsters
 An extremely simple coding toy for kids. It allows control of the characters on screen with simple commands.
 [See it in action...](https://mpicpus.github.io/code_monsters1/)
