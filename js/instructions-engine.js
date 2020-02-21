@@ -6,7 +6,7 @@ export class InstructionsEngine {
     this.minions = minions;
   }
 
-  move(minion, direction) {
+  go(minion, direction) {
     if (Object.keys(minion.movements()).includes(direction)) {
       minion.direction = direction;
       minion.go();
@@ -21,7 +21,7 @@ export class InstructionsEngine {
 
   build(minion) { minion.build() }
   stop(minion) { minion.stop() }
-  rename(minion, newName) { if (!taken(name)) minion.name = name }
+  rename(minion, newName) { if (!this.minions.taken(newName)) minion.name = newName }
 
   make(minion, name, size) {
     if (!this.minions.taken(name) && name != '' && name != null) {

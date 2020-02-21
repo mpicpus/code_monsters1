@@ -1,10 +1,11 @@
 import { Minion, Minions } from './minion.js';
+import { Track, TrackSet, TrackPath } from './track.js';
 import { InstructionsEngine } from './instructions-engine.js';
 
 // Initial data
 
 let input = "";
-let minions, ctx, spriteInterval, writeEvent, inputBlock, instructionsEngine;
+let minions, tracks, ctx, spriteInterval, writeEvent, inputBlock, instructionsEngine;
 let canvasSize = {};
 let minionHeight = 70;
 let fontSize = 13;
@@ -34,9 +35,17 @@ function app() {
   canvas.height = canvasSize.y;
   canvas.width = canvasSize.x;
 
-  minions = window.theMinions = new Minions([new Minion('matt', 'robot', minionHeight, canvasCenter(minionHeight), canvasSize)]);
+  let minion = new Minion('matt', 'robot', minionHeight, canvasCenter(minionHeight), canvasSize);
+  minions = new Minions();
+  minions.add(minion);
+
   instructionsEngine = window.theInstructionsEngine = new InstructionsEngine(minions);
   window.inst = InstructionsEngine;
+  // tracks = new TrackSet();
+  window.track = Track;
+  window.minion = Minion;
+  window.trackSet = TrackSet;
+  window.minions = minions;
 
   ctx = canvas.getContext("2d");
   window.requestAnimationFrame(draw);

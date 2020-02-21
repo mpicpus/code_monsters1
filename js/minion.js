@@ -144,7 +144,7 @@ export class Minion {
 }
 
 export class Minions {
-  constructor(collection) {
+  constructor(type, collection) {
     this.collection = collection || [];
   }
 
