@@ -1,5 +1,6 @@
 export class Track {
-  constructor(model, image, position, previous, next) {
+  constructor(type, model, image, position, previous, next) {
+    this.type = type;
     this.model = model;
     this.image = image || this.loadImage();
     this.position = position || {};
@@ -41,35 +42,40 @@ export class TrackSet {
     let tracks = [];
     let list = this.trackList();
     
-    list.forEach((model) => {
-      tracks.push(new Track(model))
+    Object.keys(list).forEach((type) => {
+      list[type].forEach((model) => {
+        tracks.push(new Track(type, model))
+      })
     })
 
     return tracks;
   }
 
   trackList() {
-    return [
-      // vertical
-      ['1a', '6a'],
-      ['1b', '6b'],
-      ['2a', '5a'],
-      ['2b', '5b'],
-      // horizontal
-      ['3a', '8a'],
-      ['3b', '8b'],
-      ['4a', '7a'],
-      ['4b', '7b'],
-      // Curve
-      ['1a', '4b'],
-      ['1b', '4a'],
-      ['2a', '7a'],
-      ['2b', '7b'],
-      ['3a', '6a'],
-      ['3b', '6b'],
-      ['5a', '8b'],
-      ['5b', '8a'],
-    ]
+    return {
+      straight: [
+        // vertical
+        ['1a', '6a'],
+        ['1b', '6b'],
+        ['2a', '5a'],
+        ['2b', '5b'],
+        // horizontal
+        ['3a', '8a'],
+        ['3b', '8b'],
+        ['4a', '7a'],
+        ['4b', '7b'],
+      ],
+      curve: [
+        ['1a', '4b'],
+        ['1b', '4a'],
+        ['2a', '7a'],
+        ['2b', '7b'],
+        ['3a', '6a'],
+        ['3b', '6b'],
+        ['5a', '8b'],
+        ['5b', '8a'],
+      ]
+    }
   }
 
   connections(track) {

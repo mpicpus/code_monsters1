@@ -28,7 +28,7 @@ export class InstructionsEngine {
   make(minion, name, size) {
     if (!this.minions.taken(name) && name != '' && name != null) {
       this.build(minion);
-      minion.actionBuffer.set(5, this.buildMinion, [this.minions, minion, name, size]);
+      minion.actionQueue.set(5, this.buildMinion, [this.minions, minion, name, size]);
     }
   }
 

@@ -1,5 +1,5 @@
 // Action buffer -> it allows a basic form of timed concatenation.
-export class ActionBuffer {
+export class ActionQueue {
   constructor(minion, minions) {
     this.minion = minion;
     this.minions = minions;

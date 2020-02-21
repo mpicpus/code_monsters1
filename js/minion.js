@@ -1,4 +1,4 @@
-import {ActionBuffer} from './action-buffer.js'
+import {ActionQueue} from './action-queue.js'
 import {SpriteSet} from './sprite-set.js'
 
 let  spriteSets = []
@@ -12,7 +12,7 @@ export class Minion {
     this.type = type;
     this.height = height;
     this.position = {...position, ...{correction: {x: 0, y: 0}}};
-    this.actionBuffer = new ActionBuffer(this);
+    this.actionQueue = new ActionQueue(this);
     this.speed = 0.25;
 
     // Inner properties
@@ -135,7 +135,7 @@ export class Minion {
     if (this.currentAnimationStep > this.sprites.images[this.state].length - 1)
       this.currentAnimationStep = 1;
 
-    this.actionBuffer.advance();
+    this.actionQueue.advance();
   }
 
   getCurrentSprite() {
