@@ -6,22 +6,25 @@ console.log('This is the bronx');
 // Initial data
 
 let input = "";
-let minions, tracks, ctx, spriteInterval, writeEvent, inputBlock, instructionsEngine;
+let ctx, spriteInterval, writeEvent, inputBlock, instructionsEngine;
 let canvasSize = {};
 let minionHeight = 70;
+let trackHeight = 70;
 let fontSize = 13;
+
+let things = {}
 
 // Initialization
 spriteInterval = window.setInterval(updateSpriteSteps, 150);
 
 function updateSpriteSteps() {
-  if (minions)
-    minions.collection.forEach((minion) => minion.updateSpriteSteps());
+  if (things.minions)
+    things.minions.collection.forEach((minion) => minion.updateSpriteSteps());
 }
 
 // Main app
 function initialize() {
-  writeEvent = document.querySelector('.input-area').addEventListener('keydown', handleKeypress)
+  writeEvent = document.querySelector('.input-area').addEventListener('keyup', handleKeypress)
 
   let canvasWrapper = document.querySelector('#work-place');
   inputBlock = document.querySelector('.input-area');
@@ -37,16 +40,16 @@ function initialize() {
   canvas.width = canvasSize.x;
 
   let minion = new Minion('matt', 'robot', minionHeight, canvasCenter(minionHeight), canvasSize);
-  minions = new Minions();
-  minions.add(minion);
+  things.minions = new Minions();
+  things.minions.add(minion);
 
-  instructionsEngine = new InstructionsEngine(minions, inputBlock, initialize);
-  window.inst = InstructionsEngine;
-  // tracks = new TrackSet();
-  window.track = Track;
-  window.minion = Minion;
-  window.trackSet = TrackSet;
-  window.minions = minions;
+  things.trackPath = new TrackPath();
+  things.trackSet = new TrackSet(trackHeight);
+
+  instructionsEngine = new InstructionsEngine(things, inputBlock, initialize);
+
+  window.things = things;
+  window.inst = instructionsEngine;
 
   ctx = canvas.getContext("2d");
   window.requestAnimationFrame(draw);
@@ -64,6 +67,7 @@ function draw() {
   ctx.globalCompositeOperation = 'destination-over';
   ctx.clearRect(0, 0, canvasSize.x, canvasSize.y); // clear canvas
   drawMinionSprites();
+  drawTrackSprites();
 
   window.requestAnimationFrame(draw);
 }
@@ -71,10 +75,23 @@ function draw() {
 function drawMinionSprites() {
   ctx.font = `${fontSize}px monospace`;
   
-  minions.collection.forEach((minion) => {
+  things.minions.collection.forEach((minion) => {
     ctx.drawImage(minion.getCurrentSprite(), minion.finalPosition().x, minion.finalPosition().y, minion.width(minion.getCurrentSprite()), minion.height);
     ctx.fillText(`${minion.name}`, minion.position.x + 22, minion.position.y - 5);
   })
+}
+
+function drawTrackSprites() {
+  things.trackPath.tracks.forEach((track) => {
+    ctx.drawImage(track.image, track.position.x, track.position.y, track.size, track.size)
+  })
+
+  if (things.trackPath.preview) {
+    let track = things.trackPath.preview;
+    ctx.globalAlpha = 0.5;
+    ctx.drawImage(track.image, track.position.x, track.position.y, track.size, track.size);
+    ctx.globalAlpha = 1.0;
+  }
 }
 
 function updatePositions() {
@@ -82,12 +99,12 @@ function updatePositions() {
 }
 
 function updateMinionPositions() {
-  if (minions)
-    minions.collection.forEach((minion) => minion.move())
+  if (things.minions)
+    things.minions.collection.forEach((minion) => minion.move())
 }
 
 function minionNames() {
-  return minions.names();
+  return things.minions.names();
 }
 
 function taken(name) {
@@ -95,15 +112,18 @@ function taken(name) {
 }
 
 function handleKeypress(event) {
+  if (!inputBlock.value) return;
+
+  let instructions = parseInstructions(inputBlock.value.split('\n').filter((i) => i != '').slice(-1)[0]);
+
   if (event.code == "Enter") {
-    let instructions = parseInstructions(inputBlock.value.split('\n').filter((i) => i != '').slice(-1)[0]);
     let selectedMinions;
     
-    if (minions.names().includes(instructions[0])) {
-      selectedMinions = minions.collection.filter(m => m.name == instructions[0]);
+    if (things.minions.names().includes(instructions[0])) {
+      selectedMinions = things.minions.collection.filter(m => m.name == instructions[0]);
       instructions.shift(); 
     } else if (instructions[0] == 'all') {
-      selectedMinions = minions.collection;
+      selectedMinions = things.minions.collection;
       instructions.shift();
     } else if (InstructionsEngine.singleMethodNames().includes(instructions[0])) {
       selectedMinions = [];
@@ -124,6 +144,17 @@ function handleKeypress(event) {
       selectedMinions.forEach((minion) => minion.stop());
 
     focusTextArea();
+  } else {
+    let trackModel = null, minion = null;
+    
+    if (instructions[1] == 'track') {
+      minion = things.minions.collection.filter((m) => m.name == instructions[0])[0] || things.minions.collection[0];
+      trackModel = things.trackPath.lastTrack() || things.trackSet.tracks[9];
+    }
+
+    console.log(instructions);
+    
+    instructionsEngine.previewTrack(minion, trackModel)
   }
 }
 

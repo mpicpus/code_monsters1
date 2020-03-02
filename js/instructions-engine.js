@@ -1,9 +1,10 @@
 import { Minion, Minions } from './minion.js';
+import { Track, TrackSet } from './track.js';
 
 // Input management
 export class InstructionsEngine {
-  constructor(minions, inputBlock, initialize) {
-    this.minions = minions;
+  constructor(things, inputBlock, initialize) {
+    this.things = things;
     this.inputBlock = inputBlock;
     this.initialize = initialize;
   }
@@ -23,12 +24,12 @@ export class InstructionsEngine {
 
   build(minion) { minion.build() }
   stop(minion) { minion.stop() }
-  rename(minion, newName) { if (!this.minions.taken(newName)) minion.name = newName }
+  rename(minion, newName) { if (!this.things.minions.taken(newName)) minion.name = newName }
 
   make(minion, name, size) {
-    if (!this.minions.taken(name) && name != '' && name != null) {
+    if (!this.things.minions.taken(name) && name != '' && name != null) {
       this.build(minion);
-      minion.actionQueue.set(5, this.buildMinion, [this.minions, minion, name, size]);
+      minion.actionQueue.set(5, this.buildMinion, [this.things.minions, minion, name, size]);
     }
   }
 
@@ -36,6 +37,22 @@ export class InstructionsEngine {
     minion.stop();
     size = parseInt(size) || parseInt(minion.height);
     minions.add(new Minion(name, minion.type, size, {x: minion.position.x - size - 10, y: minion.position.y + minion.height - size}, minion.canvasSize));
+  }
+
+  track(minion, track) {
+    minion.build();
+    minion.actionQueue.set(5, this.buildTrack, [minion, track]);
+  }
+
+  buildTrack(minion, track) {
+    minion.stop();
+    things.trackPath.add(track, minion.position);
+    minion.position.x = things.trackPath.lastTrack().position.x;
+    minion.position.y = things.trackPath.lastTrack().position.y;
+  }
+
+  previewTrack(minion, track) {
+    things.trackPath.setPreview(track, minion ? minion.position : null)
   }
 
   reset() { this.initialize(); this.clear(); }

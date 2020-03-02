@@ -1,15 +1,17 @@
 export class Track {
-  constructor(type, model, image, position, previous, next) {
+  constructor(type, model, size, image, position, previous, next) {
     this.type = type;
     this.model = model;
     this.image = image || this.loadImage();
     this.position = position || {};
     this.previous = previous || null;
     this.next = next || null;
+    this.isLast = true;
+    this.size = size;
   }
 
   name() {
-    return `${this.shape}_${this.model.join('-')}`
+    return `${this.shape}_${this.model.sort().join('-')}`
   }
 
   loadImage() {
@@ -17,24 +19,67 @@ export class Track {
     image.src = `assets/train/tracks/${this.model.join('-')}.png`;
     return image
   }
+
+  attachmentPoint(newTrack) {
+    debugger;
+    if (Object.keys(this.position).length > 0) {
+      let calculator = TrackSet.connectionTable()[this.model[1][0]][newTrack.model[0][0]]
+      return {
+        x: this.position.x + (this.size * calculator[0]),
+        y: this.position.y + (this.size * calculator[1])
+      }
+    }
+  }
+
+  static fromModel(trackModel, last, position) {
+    let trackPosition = last ? last.attachmentPoint(trackModel) : position;
+    let newTrack = new Track(trackModel.type, trackModel.model, trackModel.size, trackModel.image, trackPosition, last);
+
+    return newTrack
+  }
 }
 
 export class TrackPath {
   constructor(tracks) {
     this.tracks = tracks || [];
+    this.preview = null;
   }
 
-  add(track) {
-    this.tracks.push(track)
+  add(track, position) {
+    let newTrack;
+
+    if (this.preview) {
+      newTrack = Track.fromModel(this.preview, this.lastTrack(), position);
+      this.preview = null;
+    } else if (track) {
+      let last = this.lastTrack();
+      this.tracks.forEach((t) => t.isLast = false);
+
+      newTrack = Track.fromModel(track, last, position)
+    }
+
+    if (newTrack) this.tracks.push(newTrack);
   }
 
   remove(track) {
     this.tracks = this.tracks.filter(t => t != track)
   }
+
+  lastTrack() {
+    return this.tracks.filter((track) => track.isLast)[0];
+  }
+
+  setPreview(track, position) {
+    if (track == null)
+      this.preview = null;
+    else
+      this.preview = Track.fromModel(track, this.lastTrack(), position);
+  }
 }
 
 export class TrackSet {
-  constructor() {
+  constructor(size) {
+    this.size = size;
     this.tracks = this.getTrackSet();
   }
 
@@ -44,11 +89,19 @@ export class TrackSet {
     
     Object.keys(list).forEach((type) => {
       list[type].forEach((model) => {
-        tracks.push(new Track(type, model))
+        tracks.push(new Track(type, model, this.size))
       })
     })
 
     return tracks;
+  }
+
+  straight() {
+    return this.tracks.filter(t => t.type == 'straight')
+  }
+
+  curves() {
+    return this.tracks.filter(t => t.type == 'curve')
   }
 
   trackList() {
@@ -81,23 +134,59 @@ export class TrackSet {
   connections(track) {
     let endCode = track.model[1];
     let code = this.connectionCodes(endCode);
-    return this.tracks.filter(track => track.model.filter(m => code.includes(m)).length > 0);
+
+    let result = [];
+    // straight
+    result = result.concat(this.straight().filter((track) => {
+      track.model.filter((m) => {
+        if (this.constructor.connectionTable()[track.model[1][0]][m[0]])
+          return code.includes(m) && this.constructor.connectionTable()[track.model[1][0]][m[0]].reduce((i, a = 0) => a * i) == 0;
+      }).length > 0
+    }));
+    // curves
+    result = result.concat(this.curves().filter(track => track.model.filter(m => code.includes(m)).length > 0));
+
+    return result;
   }
 
   connectionCodes(endCode) {
-    return this.connectionTable()[endCode[0]].map(code => `${code}${endCode[1]}`)
+    return Object.keys(this.constructor.connectionTable()[endCode[0]]).map(code => `${code}${endCode[1]}`)
   }
 
-  connectionTable() {
+  static connectionTable() {
     return {
-      '1': ['6'],
-      '2': ['5'],
-      '3': ['8'],
-      '4': ['7'],
-      '5': ['2'],
-      '6': ['1'],
-      '7': ['4'],
-      '8': ['3'],
+      '1': {
+        '5': [-0.5, -1],
+        '6': [0, -1]
+      },
+      '2': {
+        '5': [0, -1],
+        '6': [0.5, -1]
+      },
+      '3':{
+        '7': [1, -0.5],
+        '8': [1, 0]
+      },
+      '4': {
+        '7': [1, 0],
+        '8': [1, 0.5]
+      },
+      '5': {
+        '1': [0.5, 1],
+        '2': [0, 1]
+      },
+      '6': {
+        '1': [0, 1],
+        '2': [-0.5, 1]
+      },
+      '7': {
+        '3': [-1, 0.5],
+        '4': [-1, 0]
+      },
+      '8': {
+        '3': [-1, 0],
+        '4': [-1, -0.5]
+      },
     }
   }
 }
