@@ -21,7 +21,6 @@ export class Track {
   }
 
   attachmentPoint(newTrack) {
-    debugger;
     if (Object.keys(this.position).length > 0) {
       let calculator = TrackSet.connectionTable()[this.model[1][0]][newTrack.model[0][0]]
       return {
@@ -29,6 +28,10 @@ export class Track {
         y: this.position.y + (this.size * calculator[1])
       }
     }
+  }
+
+  endPoint() {
+    
   }
 
   static fromModel(trackModel, last, position) {

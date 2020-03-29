@@ -7,10 +7,11 @@ export class ActionQueue {
     this.maxCounter = 0;
     this.callback = null;
     this.args = [];
+    this.callbackIsExternal = false;
   }
 
   set(numOfCycles, callback, args) {
-    this.maxCounter = numOfCycles * 5;
+    this.maxCounter = numOfCycles * (this.minion.sprites.states[this.minion.state] || 5);
     this.currentCounter = 0;
     this.callback = callback;
     this.args = args;
@@ -36,7 +37,15 @@ export class ActionQueue {
   }
 
   perform() {
-    this.callback(...this.args);
+    // debugger;
+    // this.minion.stop();
+    if (typeof(this.callback) == 'function')
+      this.callback(...this.args);
+    else {
+      if (this.minion.methodNames().includes(this.callback))
+        this.minion[this.callback]();
+    }
+
     this.reset();
   }
 }

@@ -1,16 +1,19 @@
 import { Minion, Minions } from './minion.js';
+import { Trap, Traps } from './trap.js';
+import { Prop, Props, Zeppelin } from './prop.js';
 import { Track, TrackSet, TrackPath } from './track.js';
 import { InstructionsEngine } from './instructions-engine.js';
 
-console.log('This is the bronx');
 // Initial data
 
 let input = "";
 let ctx, spriteInterval, writeEvent, inputBlock, instructionsEngine;
 let canvasSize = {};
-let minionHeight = 70;
+let minionHeight = 180;
+let mineHeight = 45;
 let trackHeight = 70;
 let fontSize = 13;
+let showHotPoints = true;
 
 let things = {}
 
@@ -20,6 +23,12 @@ spriteInterval = window.setInterval(updateSpriteSteps, 150);
 function updateSpriteSteps() {
   if (things.minions)
     things.minions.collection.forEach((minion) => minion.updateSpriteSteps());
+
+  if (things.traps)
+    things.traps.collection.forEach((trap) => trap.updateSpriteSteps());
+
+  if (things.props)
+    things.props.collection.forEach((prop) => prop.updateSpriteSteps());
 }
 
 // Main app
@@ -39,17 +48,30 @@ function initialize() {
   canvas.height = canvasSize.y;
   canvas.width = canvasSize.x;
 
-  let minion = new Minion('matt', 'robot', minionHeight, canvasCenter(minionHeight), canvasSize);
+  let minion = new Minion('matt', 'stone_robot', minionHeight, canvasBottomRight(minionHeight), canvasSize);
   things.minions = new Minions();
   things.minions.add(minion);
 
+  let newTraps = [...Array(20).keys()].map((i) => {
+    return new Trap(``, 'mine', mineHeight, {x: Math.random() * canvasSize.x * 0.78, y: Math.random() * canvasSize.y})
+  });
+    
+  things.traps = new Traps();
+  things.traps.collection = newTraps;
+  // let newTrap = new Trap(`1`, 'mine', minionHeight / 2, canvasCenter(minionHeight), canvasSize);
+  // things.traps.add(newTrap);
+
+  things.props = new Props([], canvasSize);
+  // let newZeppelin = new Zeppelin('zep', null, null, canvasSize);
+  // things.props.add(newZeppelin);
+  
   things.trackPath = new TrackPath();
   things.trackSet = new TrackSet(trackHeight);
 
   instructionsEngine = new InstructionsEngine(things, inputBlock, initialize);
+  window.instructionsEngine = instructionsEngine;
 
   window.things = things;
-  window.inst = instructionsEngine;
 
   ctx = canvas.getContext("2d");
   window.requestAnimationFrame(draw);
@@ -62,45 +84,131 @@ let canvasCenter = (minionHeight) => {
   }
 }
 
+let canvasBottomRight = (minionHeight) => {
+  return {
+    x: Math.floor(canvasSize.x * 0.95 - minionHeight),
+    y: Math.floor(canvasSize.y * 0.95 - minionHeight)
+  }
+}
+
 function draw() {
-  updatePositions();
+  updateStates();
   ctx.globalCompositeOperation = 'destination-over';
   ctx.clearRect(0, 0, canvasSize.x, canvasSize.y); // clear canvas
   drawMinionSprites();
+  drawTrapSprites();
+  drawPropSprites();
   drawTrackSprites();
 
   window.requestAnimationFrame(draw);
+}
+
+function drawHotPoints(thing, radius, color) {
+  if (!showHotPoints) return;
+
+  let hotpoints = thing.getHotPoints();
+  radius = radius || 5;
+  color = color || 'red';
+
+  hotpoints.forEach((point) => {
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'red';
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+    ctx.closePath();
+  })
 }
 
 function drawMinionSprites() {
   ctx.font = `${fontSize}px monospace`;
   
   things.minions.collection.forEach((minion) => {
+    ctx.beginPath();
     ctx.drawImage(minion.getCurrentSprite(), minion.finalPosition().x, minion.finalPosition().y, minion.width(minion.getCurrentSprite()), minion.height);
+
+    drawHotPoints(minion);
+
+    ctx.fillStyle = "white";
     ctx.fillText(`${minion.name}`, minion.position.x + 22, minion.position.y - 5);
+    ctx.closePath();
+  })
+}
+
+function drawTrapSprites() {
+  things.traps.collection.forEach((trap) => {
+    ctx.beginPath();
+    ctx.drawImage(trap.getCurrentSprite(), trap.finalPosition().x, trap.finalPosition().y, trap.width(trap.getCurrentSprite()), trap.height);
+    ctx.closePath();
+    drawHotPoints(trap)
+  })
+}
+
+function drawPropSprites() {
+  things.props.collection.forEach((prop) => {
+    ctx.beginPath();
+    ctx.drawImage(prop.getCurrentSprite(), prop.finalPosition().x, prop.finalPosition().y, prop.width(prop.getCurrentSprite()), prop.height);
+    ctx.closePath();
   })
 }
 
 function drawTrackSprites() {
   things.trackPath.tracks.forEach((track) => {
-    ctx.drawImage(track.image, track.position.x, track.position.y, track.size, track.size)
+    cts.beginPath();
+    ctx.drawImage(track.image, track.position.x, track.position.y, track.size, track.size);
+    ctx.closePath();
   })
 
   if (things.trackPath.preview) {
     let track = things.trackPath.preview;
+    ctx.beginPath();
     ctx.globalAlpha = 0.5;
     ctx.drawImage(track.image, track.position.x, track.position.y, track.size, track.size);
     ctx.globalAlpha = 1.0;
+    ctx.closePath();
   }
 }
 
-function updatePositions() {
+function updateStates() {
   updateMinionPositions();
+  updatePropPositions();
+  checkTraps();
 }
 
 function updateMinionPositions() {
   if (things.minions)
     things.minions.collection.forEach((minion) => minion.move())
+}
+
+function updatePropPositions() {
+  if (things.props){
+    things.props.collection.forEach((prop) => prop.move());
+    things.props.checkZepBoundaries()
+  }
+}
+
+function checkTraps() {
+  let threshold = 50;
+  things.traps.collection.filter(trap => trap.state != 'die').forEach((trap) => {
+    let trapHotPoints = trap.getHotPoints();
+    
+    let touchedMinions = things.minions.collection
+                        .filter((minion) => {
+                          let minionHotPoints = minion.getHotPoints();
+                          return minion.state != 'die' &&
+                            minionHotPoints.find((mhp) => {
+                              return trapHotPoints.filter((thp) => Math.abs(mhp.x - thp.x) + Math.abs(mhp.y - thp.y) < threshold).length > 0
+                            }) })
+    
+    if (touchedMinions.length > 0) {
+      instructionsEngine.blowTrap(trap);
+      touchedMinions.forEach((minion) => {
+        instructionsEngine.blow(minion)
+      })
+    }
+  })
 }
 
 function minionNames() {
@@ -140,6 +248,11 @@ function handleKeypress(event) {
 
         instructionsEngine[method](minion, ...localInstructions);
       })
+    } else if (['zep', 'zeppelin'].includes(instructions[0])) {
+      let method = 'zeppelin';
+      instructions.shift();
+      let localInstructions = Array.from(instructions);
+      instructionsEngine[method](... localInstructions)
     } else
       selectedMinions.forEach((minion) => minion.stop());
 
@@ -151,8 +264,6 @@ function handleKeypress(event) {
       minion = things.minions.collection.filter((m) => m.name == instructions[0])[0] || things.minions.collection[0];
       trackModel = things.trackPath.lastTrack() || things.trackSet.tracks[9];
     }
-
-    console.log(instructions);
     
     instructionsEngine.previewTrack(minion, trackModel)
   }

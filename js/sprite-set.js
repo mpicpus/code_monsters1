@@ -1,13 +1,9 @@
 // SPRITES
 export class SpriteSet {
-  constructor(type, states) {
-    this.type = type || 'robot';
-    this.states = states || {
-                              idle: 5,    
-                              go: 5,
-                              die: 9,
-                              build: 7
-                            };
+  constructor(family, type, states) {
+    this.family = family || 'avatar';
+    this.type = this.constructor.avatarSteps(type) ? type : 'stone_robot';
+    this.states = states || this.constructor.avatarSteps(this.type);
     this.images = this.loadImages()
   }
 
@@ -26,15 +22,47 @@ export class SpriteSet {
   }
 
   getSpriteImage(state, index) {
-    return `assets/avatars/${this.type}/${state}/${index}.png`
+    return `assets/${this.family}/${this.type}/${state}/${index}.png`
   }
-}
 
-let avatarSteps = {
-  robot: {
-    idle: 5,    
-    go: 5,
-    die: 9,
-    build: 7
+  static avatarSteps(type) {
+    return {
+      robot: {
+        idle: 5,    
+        go: 5,
+        die: 9,
+        build: 7,
+        appear: 9
+      },
+      stone_robot: {
+        appear: 15,
+        build: 6,
+        die: 7,
+        go: 6,
+        idle: 6
+      },
+      zombie: {
+        appear: 11,
+        build: 7,
+        die: 8,
+        go: 10,
+        idle: 6
+      },
+      skeleton: {
+        appear: 10,
+        build: 8,
+        die: 8,
+        go: 8,
+        idle: 6
+      },
+      mine: {
+        blow: 7,
+        die: 7,
+        idle: 2
+      },
+      zeppelin: {
+        go: 5
+      }
+    }[type]
   }
 }

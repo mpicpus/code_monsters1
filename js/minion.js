@@ -13,14 +13,15 @@ export class Minion {
     this.height = height;
     this.position = {...position, ...{correction: {x: 0, y: 0}}};
     this.actionQueue = new ActionQueue(this);
-    this.speed = 0.25;
+    this.speed = 1;
 
     // Inner properties
     this.state = 'idle';
-    this.currentAnimationStep = 1;
+    this.currentAnimationStep = 0;
     this.direction = 'right';
 
     this.sprites = this.getSprites();
+    this.hotPointsCalculator = this.constructor.getHotPointsCalculator(this.type)
   }
 
   // Getters
@@ -28,15 +29,26 @@ export class Minion {
     return img.width / img.height * this.height;
   }
 
+  setState(state) {
+    let newState = this.sprites.states[state] ? state : 'idle';
+    this.state = newState
+  }
+
   // Utils
   getSprites() {
     let sprites = spriteSets.filter(set => set.type == this.type)[0];
     if (!sprites) {
-      sprites = new SpriteSet(this.type);
+      sprites = new SpriteSet('avatars', this.type);
       spriteSets.push(sprites);
     }
 
     return sprites
+  }
+
+  getHotPoints() {
+    return this.hotPointsCalculator.map((point) => {
+      return {x: this.position.x + this.masterWidth() * point[0], y: this.position.y + this.height * point[1]}
+    })
   }
 
   movementLimit(direction) {
@@ -79,19 +91,32 @@ export class Minion {
 
   stop() {
     this.reset();
-    this.state = 'idle'
+    this.setState('idle')
   }
 
   go() {
     this.reset();
-    this.state = 'go'
+    this.setState('go')
   }
 
   build() {
     this.stop();
     this.currentAnimationStep = 0;
-    this.state = 'build';
+    this.setState('build');
     this.setCorrection()
+  }
+
+  appear() {
+    this.reset();
+    this.setState('appear');
+    if (this.state == 'appear') {
+      this.actionQueue.set(1, 'stop');
+    }
+  }
+
+  die() {
+    this.reset();
+    this.setState('die');
   }
 
   changeSpeed() {
@@ -106,7 +131,6 @@ export class Minion {
       x: Math.floor(this.height - this.width(this.getCurrentSprite())),
       y: 0
     }
-    console.log('correction: ', this.position.correction)
   }
 
   reset() {
@@ -133,13 +157,57 @@ export class Minion {
     this.currentAnimationStep ++;
     
     if (this.currentAnimationStep > this.sprites.images[this.state].length - 1)
-      this.currentAnimationStep = 1;
+      this.currentAnimationStep = 0;
 
     this.actionQueue.advance();
   }
 
   getCurrentSprite() {
     return this.sprites ? this.sprites.images[this.state][this.currentAnimationStep] : null;
+  }
+
+  // We assume any sprite has an 'idle' state with at least one image.
+  masterSprite() {
+    return this.sprites ? this.sprites.images['idle'][0] : null;
+  }
+
+  masterWidth() {
+    return this.width(this.masterSprite());
+  }
+
+  methodNames() {
+    return this.constructor.methodNames();
+  }
+
+  static methodNames() {
+    return Object.getOwnPropertyNames(this.prototype).filter(n => !['constructor'].includes(n));
+  }
+
+  static getHotPointsCalculator(type) {
+    return {
+      robot: [
+        [0, 0],
+        [0.5, 0],
+        [1, 0],
+        [1, 0.5],
+        [1, 1],
+        [0.5, 0.5],
+        [0, 0.5],
+        [0, 1],
+        [0.5, 1]
+      ],
+      stone_robot: [
+        [0, 0],
+        [0.5, 0],
+        [1, 0],
+        [1, 0.5],
+        [1, 1],
+        [0.5, 0.5],
+        [0, 0.5],
+        [0, 1],
+        [0.5, 1]
+      ],
+    }[type] || [];
   }
 }
 
