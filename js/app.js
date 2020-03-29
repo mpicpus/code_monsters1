@@ -13,7 +13,7 @@ let minionHeight = 180;
 let mineHeight = 45;
 let trackHeight = 70;
 let fontSize = 13;
-let showHotPoints = true;
+let showHotPoints = false;
 
 let things = {}
 
@@ -253,6 +253,8 @@ function handleKeypress(event) {
       instructions.shift();
       let localInstructions = Array.from(instructions);
       instructionsEngine[method](... localInstructions)
+    } else if (['points'].includes(instructions[0])) {
+      togglePoints();
     } else
       selectedMinions.forEach((minion) => minion.stop());
 
@@ -267,6 +269,10 @@ function handleKeypress(event) {
     
     instructionsEngine.previewTrack(minion, trackModel)
   }
+}
+
+function togglePoints() {
+  showHotPoints = !showHotPoints;
 }
 
 function parseInstructions(instructions) {
