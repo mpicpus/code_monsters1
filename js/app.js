@@ -252,7 +252,10 @@ function handleKeypress(event) {
       let method = 'zep';
       instructions.shift();
       let localInstructions = Array.from(instructions);
-      instructionsEngine[method](... localInstructions)
+      instructionsEngine[method](... localInstructions);
+    } else if (instructions[0] == 'train') {
+      instructions.shift();
+      instructionsEngine.train(...instructions);
     } else if (['points'].includes(instructions[0])) {
       togglePoints();
     } else
