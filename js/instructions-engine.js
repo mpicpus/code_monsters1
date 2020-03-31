@@ -83,10 +83,10 @@ export class InstructionsEngine {
       things.props.add(new Zeppelin('', size, speed, things.props.canvasSize));
   }
 
-  train(speed) {
-    speed = speed ? parseInt(speed) : null
-    if (!things.props.collection.find(prop => prop.type == 'train'))
-      things.props.add(new Train('train', null, speed, things.props.canvasSize))
+  train(size, speed) {
+    size = size ? parseInt(size) : null;
+    speed = speed ? parseInt(speed) : null;
+    things.props.add(new Train('train', size, speed, things.props.canvasSize))
   }
 
   z(instruction) {
