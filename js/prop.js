@@ -181,7 +181,7 @@ export class Train extends Prop {
     super(name, speed || 1, canvasSize);
     this.type = 'train';
     this.height = parseInt(size) || this.canvasSize.y * 0.09;
-    this.position = {x: 0 - this.height * 8, y: canvasSize.y * 0.45, correction: {x: 0, y: 0}};
+    this.position = {x: 0 - this.height * 5, y: canvasSize.y * 0.45, correction: {x: 0, y: 0}};
     this.state = 'go';
 
     this.sprites = this.getSprites();
