@@ -1,6 +1,6 @@
 import { Minion, Minions } from './minion.js';
 import { Track, TrackSet } from './track.js';
-import { Prop, Zeppelin } from './prop.js';
+import { Prop, Zeppelin, Train } from './prop.js';
 
 // Input management
 export class InstructionsEngine {
@@ -68,7 +68,7 @@ export class InstructionsEngine {
     newMinion.appear();
   }
 
-  zeppelin(size, speed, number) {
+  zep(size, speed, number) {
     if (number) {
       size = parseInt(size) || 150;
       speed = parseInt(speed) || 5;
@@ -83,7 +83,10 @@ export class InstructionsEngine {
       things.props.add(new Zeppelin('', size, speed, things.props.canvasSize));
   }
 
-  zep(size) {zeppelin(size)}
+  train() {
+    if (!things.props.collection.find(prop => prop.type == 'train'))
+      things.props.add(new Train('train', null, null, things.props.canvasSize))
+  }
 
   z(instruction) {
 

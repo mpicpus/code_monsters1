@@ -1,6 +1,6 @@
 import { Minion, Minions } from './minion.js';
 import { Trap, Traps } from './trap.js';
-import { Prop, Props, Zeppelin } from './prop.js';
+import { Prop, Props, Zeppelin, Train } from './prop.js';
 import { Track, TrackSet, TrackPath } from './track.js';
 import { InstructionsEngine } from './instructions-engine.js';
 
@@ -62,9 +62,9 @@ function initialize() {
   // things.traps.add(newTrap);
 
   things.props = new Props([], canvasSize);
-  // let newZeppelin = new Zeppelin('zep', null, null, canvasSize);
-  // things.props.add(newZeppelin);
-  
+  // let newTrain = new Train('train', null, null, canvasSize);
+  // things.props.add(newTrain);
+
   things.trackPath = new TrackPath();
   things.trackSet = new TrackSet(trackHeight);
 

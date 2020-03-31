@@ -62,6 +62,10 @@ export class SpriteSet {
       },
       zeppelin: {
         go: 5
+      },
+      train: {
+        idle: 8,
+        go: 8
       }
     }[type]
   }
