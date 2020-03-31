@@ -249,7 +249,7 @@ function handleKeypress(event) {
         instructionsEngine[method](minion, ...localInstructions);
       })
     } else if (['zep', 'zeppelin'].includes(instructions[0])) {
-      let method = 'zeppelin';
+      let method = 'zep';
       instructions.shift();
       let localInstructions = Array.from(instructions);
       instructionsEngine[method](... localInstructions)
