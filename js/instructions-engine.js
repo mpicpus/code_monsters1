@@ -83,10 +83,18 @@ export class InstructionsEngine {
       things.props.add(new Zeppelin('', size, speed, things.props.canvasSize));
   }
 
-  train(size, speed) {
-    size = size ? parseInt(size) : null;
-    speed = speed ? parseInt(speed) : null;
-    things.props.add(new Train('train', size, speed, things.props.canvasSize))
+  train(size, speed, number) {
+    if (number) {  
+      size = size ? parseInt(size) : null;
+      speed = speed ? parseInt(speed) : null;
+      let num = parseInt(number) > 50 ? 50 : parseInt(number);
+      Array.from({length: parseInt(num)}, () => {
+        let name = '';
+        let randSize = Math.random() * (size - size / 10) + size / 10;
+        let randSpeed = Math.random() * (speed - speed / 5) + speed / 5;
+        things.props.add(new Train(name, randSize, randSpeed, things.props.canvasSize))
+    } else
+      things.props.add(new Train('train', size, speed, things.props.canvasSize))
   }
 
   z(instruction) {
