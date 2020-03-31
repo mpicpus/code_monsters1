@@ -93,6 +93,7 @@ export class InstructionsEngine {
         let randSize = Math.random() * (size - size / 10) + size / 10;
         let randSpeed = Math.random() * (speed - speed / 5) + speed / 5;
         things.props.add(new Train(name, randSize, randSpeed, things.props.canvasSize))
+      });
     } else
       things.props.add(new Train('train', size, speed, things.props.canvasSize))
   }
