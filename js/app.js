@@ -248,14 +248,11 @@ function handleKeypress(event) {
 
         instructionsEngine[method](minion, ...localInstructions);
       })
-    } else if (['zep', 'zeppelin'].includes(instructions[0])) {
-      let method = 'zep';
+    } else if (['zep', 'train', 'z', 't'].includes(instructions[0])) {
+      let method = instructions[0];
       instructions.shift();
       let localInstructions = Array.from(instructions);
-      instructionsEngine[method](... localInstructions);
-    } else if (instructions[0] == 'train') {
-      instructions.shift();
-      instructionsEngine.train(...instructions);
+      instructionsEngine[method](... localInstructions);      
     } else if (['points'].includes(instructions[0])) {
       togglePoints();
     } else

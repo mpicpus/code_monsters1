@@ -1,5 +1,6 @@
 import {ActionQueue} from './action-queue.js'
 import {SpriteSet} from './sprite-set.js'
+import {Speed} from './speed.js'
 
 let  spriteSets = []
 
@@ -181,10 +182,53 @@ export class Train extends Prop {
     super(name, speed || 1, canvasSize);
     this.type = 'train';
     this.height = parseInt(size) || this.canvasSize.y * 0.09;
-    this.position = {x: 0 - this.height * 5, y: canvasSize.y * 0.45, correction: {x: 0, y: 0}};
+    let positionY = this.canvasSize.y * 0.54 * Math.pow(1, 0 - this.height);
+    this.position = {x: 0 - this.height * 5, y: positionY, correction: {x: 0, y: 0}};
     this.state = 'go';
 
+    this.speedObject = new Speed(this.speed, null);
+
     this.sprites = this.getSprites();
+  }
+
+  setTargetSpeed(speed) {
+    this.speedObject.setTarget(parseInt(speed));
+  }
+
+  move() {
+    if (this.shouldMove()){
+      this.speedObject.update();
+      
+      this.speed = this.speedObject.currentSpeed;
+
+      if (this.speedObject.isZero()) {
+        this.stop();
+        this.speedObject.normalizeValues();
+      } else
+        this.movements()[this.direction]();
+    }
+  }
+
+  breaks() {
+    if (this.state = 'go') {
+      this.setTargetSpeed(0);
+    }
+  }
+
+  s() { this.breaks() }
+
+  resume() {
+    if (this.state != 'go') {
+      this.speedObject.resume();
+      this.go();
+    }
+  }
+
+  g() { this.resume() }
+
+  r() {
+    this.resume();
+    this.setTargetSpeed(15);
   }
 }
 
@@ -203,11 +247,13 @@ export class Props {
   }
 
   add(prop) {
-    this.collection.push(prop)
+    this.collection.push(prop);
+    this.collection = this.collection.sort((a, b) => a.size - b.size).reverse();
   }
 
   remove(prop) {
-    delete(this.collection[this.collection.indexOf(prop)])
+    delete(this.collection[this.collection.indexOf(prop)]);
+
   }
 
   checkZepBoundaries() {

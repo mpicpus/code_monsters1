@@ -102,6 +102,10 @@ export class InstructionsEngine {
 
   }
 
+  t(instruction) {
+    things.props.collection.find(prop => prop.type = 'train')[instruction]();
+  }
+
   track(minion, track) {
     minion.build();
     minion.actionQueue.set(5, this.buildTrack, [minion, track]);
