@@ -103,7 +103,7 @@ export class InstructionsEngine {
   }
 
   t(instruction) {
-    things.props.collection.find(prop => prop.type = 'train')[instruction]();
+    things.props.collection.filter(prop => prop.type == 'train').forEach((train) => {train[instruction]()});
   }
 
   track(minion, track) {

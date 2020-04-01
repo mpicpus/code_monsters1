@@ -228,7 +228,8 @@ export class Train extends Prop {
 
   r() {
     this.resume();
-    this.setTargetSpeed(15);
+    if (this.setTargetSpeed < 15)
+      this.setTargetSpeed(15);
   }
 }
 
