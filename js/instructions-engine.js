@@ -99,7 +99,7 @@ export class InstructionsEngine {
   }
 
   z(instruction) {
-
+    things.props.collection.filter(prop => prop.type == 'zeppelin').forEach((zeppelin) => {zeppelin[instruction]()});
   }
 
   t(instruction) {

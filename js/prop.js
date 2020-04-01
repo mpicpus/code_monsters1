@@ -20,6 +20,8 @@ export class Prop {
     this.state = 'idle';
     this.currentAnimationStep = 0;
     this.direction = 'right';
+
+    this.speedObject = new Speed(this.speed, null);
   }
 
   // Getters
@@ -74,9 +76,45 @@ export class Prop {
     return this.state == 'go' // && this.isBlocked();
   }
 
+  setTargetSpeed(speed) {
+    this.speedObject.setTarget(parseInt(speed));
+  }
+
   move() {
-    if (this.shouldMove())
-      this.movements()[this.direction]();
+    if (this.shouldMove()){
+      this.speedObject.update();
+      
+      this.speed = this.speedObject.currentSpeed;
+
+      if (this.speedObject.isZero()) {
+        this.stop();
+        this.speedObject.normalizeValues();
+      } else
+        this.movements()[this.direction]();
+    }
+  }
+
+  breaks() {
+    if (this.state = 'go') {
+      this.setTargetSpeed(0);
+    }
+  }
+
+  s() { this.breaks() }
+
+  resume() {
+    if (this.state != 'go') {
+      this.speedObject.resume();
+      this.go();
+    }
+  }
+
+  g() { this.resume() }
+
+  r() {
+    this.resume();
+    if (this.speedObject.targetSpeed < 15)
+      this.setTargetSpeed(15);
   }
 
   stop() {
@@ -186,50 +224,7 @@ export class Train extends Prop {
     this.position = {x: 0 - this.height * 5, y: positionY, correction: {x: 0, y: 0}};
     this.state = 'go';
 
-    this.speedObject = new Speed(this.speed, null);
-
     this.sprites = this.getSprites();
-  }
-
-  setTargetSpeed(speed) {
-    this.speedObject.setTarget(parseInt(speed));
-  }
-
-  move() {
-    if (this.shouldMove()){
-      this.speedObject.update();
-      
-      this.speed = this.speedObject.currentSpeed;
-
-      if (this.speedObject.isZero()) {
-        this.stop();
-        this.speedObject.normalizeValues();
-      } else
-        this.movements()[this.direction]();
-    }
-  }
-
-  breaks() {
-    if (this.state = 'go') {
-      this.setTargetSpeed(0);
-    }
-  }
-
-  s() { this.breaks() }
-
-  resume() {
-    if (this.state != 'go') {
-      this.speedObject.resume();
-      this.go();
-    }
-  }
-
-  g() { this.resume() }
-
-  r() {
-    this.resume();
-    if (this.setTargetSpeed < 15)
-      this.setTargetSpeed(15);
   }
 }
 

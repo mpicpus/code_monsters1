@@ -61,7 +61,8 @@ export class SpriteSet {
         idle: 2
       },
       zeppelin: {
-        go: 5
+        go: 5,
+        idle: 5
       },
       train: {
         idle: 8,
