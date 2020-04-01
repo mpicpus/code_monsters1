@@ -16,7 +16,7 @@ export class Speed {
 
   setTarget(speed) {
     this.targetSpeed = parseFloat(speed);
-    if (this.currentSpeed != 0)
+    if (this.currentSpeed > 0 && this.targetSpeed >  0)
       this.originalSpeed = this.currentSpeed;
   }
 
