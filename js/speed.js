@@ -14,6 +14,11 @@ export class Speed {
       this.normalizeValues();
   }
 
+  setSpeed(speed) {
+    this.currentSpeed = parseFloat(speed);
+    this.originalSpeed = parseFloat(speed);
+  }
+
   setTarget(speed) {
     this.targetSpeed = parseFloat(speed);
     if (this.currentSpeed > 0 && this.targetSpeed >  0)

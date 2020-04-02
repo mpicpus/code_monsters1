@@ -67,7 +67,26 @@ export class SpriteSet {
       train: {
         idle: 8,
         go: 8
-      }
+      },
+      cloud1: {
+        go: 1
+      },
+      cloud2: {
+        go: 1
+      },
+      cloud3: {
+        go: 1
+      },
+      cloud4: {
+        go: 1
+      },
+      cloud5: {
+        go: 1
+      },
+      cloud6: {
+        go: 1
+      },
+
     }[type]
   }
 }

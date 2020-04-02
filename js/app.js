@@ -6,6 +6,12 @@ import { InstructionsEngine } from './instructions-engine.js';
 
 // Initial data
 
+class App {
+  constructor() {
+    
+  }
+}
+
 let input = "";
 let ctx, spriteInterval, writeEvent, inputBlock, instructionsEngine;
 let canvasSize = {};
@@ -95,9 +101,10 @@ function draw() {
   updateStates();
   ctx.globalCompositeOperation = 'destination-over';
   ctx.clearRect(0, 0, canvasSize.x, canvasSize.y); // clear canvas
+  ctx.imageSmoothingEnabled = false;
   drawMinionSprites();
-  drawTrapSprites();
   drawPropSprites();
+  drawTrapSprites();
   drawTrackSprites();
 
   window.requestAnimationFrame(draw);
@@ -147,7 +154,13 @@ function drawTrapSprites() {
 }
 
 function drawPropSprites() {
-  things.props.collection.forEach((prop) => {
+  things.props.clouds().forEach((prop) => {
+    ctx.beginPath();
+    ctx.drawImage(prop.getCurrentSprite(), prop.finalPosition().x, prop.finalPosition().y, prop.width(prop.getCurrentSprite()), prop.height);
+    ctx.closePath();
+  });
+
+  things.props.nonClouds().forEach((prop) => {
     ctx.beginPath();
     ctx.drawImage(prop.getCurrentSprite(), prop.finalPosition().x, prop.finalPosition().y, prop.width(prop.getCurrentSprite()), prop.height);
     ctx.closePath();
@@ -255,6 +268,10 @@ function handleKeypress(event) {
       instructionsEngine[method](... localInstructions);      
     } else if (['points'].includes(instructions[0])) {
       togglePoints();
+    } else if (instructions[0] == 'bg') {
+      changeBackground()
+    } else if (instructions[0] == 'bg0') {
+      resetBackground()
     } else
       selectedMinions.forEach((minion) => minion.stop());
 
@@ -281,6 +298,15 @@ function parseInstructions(instructions) {
 
 function focusTextArea() {
   inputBlock.focus();
+}
+
+function changeBackground() {
+  let numOfBackgrounds = 15;
+  canvas.style.backgroundImage = `url(./assets/backgrounds/${Math.round(Math.random() * (numOfBackgrounds - 1)) + 1}.jpg)`;
+}
+
+function resetBackground() {
+  canvas.style.backgroundImage = null;
 }
 
 window.addEventListener('load', (event) => {

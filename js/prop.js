@@ -20,6 +20,7 @@ export class Prop {
     this.state = 'idle';
     this.currentAnimationStep = 0;
     this.direction = 'right';
+    this.recalculateHeight = false;
 
     this.speedObject = new Speed(this.speed, null);
   }
@@ -76,8 +77,12 @@ export class Prop {
     return this.state == 'go' // && this.isBlocked();
   }
 
+  setSpeed(speed) {
+    this.speedObject.setSpeed(speed);
+  }
+
   setTargetSpeed(speed) {
-    this.speedObject.setTarget(parseInt(speed));
+    this.speedObject.setTarget(speed);
   }
 
   move() {
@@ -92,6 +97,9 @@ export class Prop {
       } else
         this.movements()[this.direction]();
     }
+
+    if (this.height == 0)
+      this.setNativeHeight();
   }
 
   breaks() {
@@ -194,6 +202,30 @@ export class Prop {
     return this.sprites ? this.sprites.images[this.state][this.currentAnimationStep] : null;
   }
 
+  // We assume any sprite has an 'idle' state with at least one image.
+  masterSprite() {
+    let type = this.sprites.images['idle'] ? 'idle' : 'go';
+    return this.sprites ? this.sprites.images[type][0] : null;
+  }
+
+  masterWidth() {
+    return this.width(this.masterSprite());
+  }
+
+  nativeHeight() {
+    return this.masterSprite().height;
+  }
+
+  setNativeHeight(callback) {
+    this.height = this.nativeHeight();
+
+    if (this.height == 0)
+      this.recalculateHeight = true;
+    else if (callback){
+      callback();
+    }
+  }
+
   methodNames() {
     return this.constructor.methodNames();
   }
@@ -228,6 +260,31 @@ export class Train extends Prop {
   }
 }
 
+export class Cloud extends Prop {
+  constructor(canvasSize) {
+    let name = '';
+    let speed = 0.5;
+    super(name, speed, canvasSize);
+
+    let numOfTypes = 6;
+    this.type = `cloud${Math.round(Math.random() * (numOfTypes - 1)) + 1}`;
+    this.state = 'go';
+
+    this.sprites = this.getSprites();
+    // this.setNativeHeight(this.setPositionY);
+    this.height = this.canvasSize.y / 3;
+
+    this.positionY = this.canvasSize.y / 6;
+    this.position = {x: canvasSize.x, y: 0 - this.height / 2, correction: {x: 0, y: 0}};
+    this.direction = 'left';
+  }
+
+  setPositionY() {
+    if (this.height > 800)
+      this.position.y = 0 - this.height / 2;
+  }
+}
+
 export class Props {
   constructor(collection, canvasSize) {
     this.collection = collection || [];
@@ -250,6 +307,14 @@ export class Props {
   remove(prop) {
     delete(this.collection[this.collection.indexOf(prop)]);
 
+  }
+
+  clouds() {
+    return this.collection.filter(prop => prop.type.match(/cloud/));
+  }
+
+  nonClouds() {
+    return this.collection.filter(prop => !prop.type.match(/cloud/));
   }
 
   checkZepBoundaries() {

@@ -1,6 +1,6 @@
 import { Minion, Minions } from './minion.js';
 import { Track, TrackSet } from './track.js';
-import { Prop, Zeppelin, Train } from './prop.js';
+import { Prop, Zeppelin, Train, Cloud } from './prop.js';
 
 // Input management
 export class InstructionsEngine {
@@ -66,6 +66,10 @@ export class InstructionsEngine {
     let newMinion = new Minion(name, type || minion.type, size, {x: minion.position.x - size - 10, y: minion.position.y + minion.height - size}, minion.canvasSize);
     minions.add(newMinion);
     newMinion.appear();
+  }
+
+  cloud() {
+    things.props.add(new Cloud(things.props.canvasSize));
   }
 
   zep(size, speed, number) {
