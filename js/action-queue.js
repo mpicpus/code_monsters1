@@ -37,8 +37,6 @@ export class ActionQueue {
   }
 
   perform() {
-    // debugger;
-    // this.minion.stop();
     if (typeof(this.callback) == 'function')
       this.callback(...this.args);
     else {

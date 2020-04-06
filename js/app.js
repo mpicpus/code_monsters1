@@ -3,25 +3,86 @@ import { Trap, Traps } from './trap.js';
 import { Prop, Props, Zeppelin, Train } from './prop.js';
 import { Track, TrackSet, TrackPath } from './track.js';
 import { InstructionsEngine } from './instructions-engine.js';
+import { Documentation } from './documentation.js';
 
 // Initial data
 
 class App {
   constructor() {
-    
+    this.spriteInterval = window.setInterval(this.updateSpriteSteps, 150);
+    this.writeEvent = document.querySelector('.input-area').addEventListener('keyup', this.handleKeypress);
+
+    this.canvasWrapper = document.querySelector('#work-place');
+    this.inputBlock = document.querySelector('.input-area');
+    this.instructionsEngine;
+
+    this.canvasSize = {
+      x: this.canvasWrapper.clientWidth,
+      y: this.canvasWrapper.clientHeight
+    }
+
+    this.canvas = document.querySelector("#canvas");
+    this.canvas.height = this.canvasSize.y;
+    this.canvas.width = this.canvasSize.x;
+
+    this.ctx = this.getCanvasElement();
+
+    this.defaultSizes = {
+      minion: 180,
+      mine: 45,
+      track: 70,
+      font: 13,
+    };
+
+    this.initialize();
+
+    this.showHotPoints = false;
+  }
+
+  initialize() {
+    this.input = '';
+
+    this.environment = {
+      type: 'initial',
+      things: {},
+      movingBg: false,
+    }
+  }
+
+  onTypeChange() {
+    initialize();
+  }
+}
+
+class Screen {
+  constructor(background, things, instructions) {
+    this.backrgroundImages = images;
+    this.move = move;
+    this.interact = interact;
+  }
+}
+
+class Background {
+  constructor(images, move, interact) {
+    this.images = images;
+    this.move = move;
+    this.interact = interact;
   }
 }
 
 let input = "";
 let ctx, spriteInterval, writeEvent, inputBlock, instructionsEngine;
 let canvasSize = {};
-let minionHeight = 180;
-let mineHeight = 45;
+let minionHeight = 120;
+let mineHeight = 30;
 let trackHeight = 70;
 let fontSize = 13;
 let showHotPoints = false;
 
-let things = {}
+let things = {};
+
+let urlSearch = new URLSearchParams(location.search);
+let initialName = urlSearch.has('name') ? urlSearch.get('name') : 'frank';
 
 // Initialization
 spriteInterval = window.setInterval(updateSpriteSteps, 150);
@@ -54,7 +115,11 @@ function initialize() {
   canvas.height = canvasSize.y;
   canvas.width = canvasSize.x;
 
-  let minion = new Minion('matt', 'stone_robot', minionHeight, canvasBottomRight(minionHeight), canvasSize);
+  ctx = canvas.getContext("2d");
+  ctx.globalCompositeOperation = 'destination-over';
+  ctx.imageSmoothingEnabled = true;
+
+  let minion = new Minion(initialName, 'stone_robot', minionHeight, canvasBottomRight(minionHeight), canvasSize);
   things.minions = new Minions();
   things.minions.add(minion);
 
@@ -74,12 +139,15 @@ function initialize() {
   things.trackPath = new TrackPath();
   things.trackSet = new TrackSet(trackHeight);
 
+  things.documentation = new Documentation('initial');
+  things.documentation.toggleOpen();
+  things.documentation.toggleOpen();
+
   instructionsEngine = new InstructionsEngine(things, inputBlock, initialize);
   window.instructionsEngine = instructionsEngine;
 
   window.things = things;
 
-  ctx = canvas.getContext("2d");
   window.requestAnimationFrame(draw);
 }
 
@@ -99,12 +167,13 @@ let canvasBottomRight = (minionHeight) => {
 
 function draw() {
   updateStates();
-  ctx.globalCompositeOperation = 'destination-over';
   ctx.clearRect(0, 0, canvasSize.x, canvasSize.y); // clear canvas
-  ctx.imageSmoothingEnabled = false;
   drawMinionSprites();
   drawPropSprites();
-  drawTrapSprites();
+  
+  if (things.traps.show)
+    drawTrapSprites();
+  
   drawTrackSprites();
 
   window.requestAnimationFrame(draw);
@@ -134,12 +203,13 @@ function drawMinionSprites() {
   
   things.minions.collection.forEach((minion) => {
     ctx.beginPath();
-    ctx.drawImage(minion.getCurrentSprite(), minion.finalPosition().x, minion.finalPosition().y, minion.width(minion.getCurrentSprite()), minion.height);
-
     drawHotPoints(minion);
 
+    ctx.drawImage(minion.getCurrentSprite(), minion.finalPosition().x, minion.finalPosition().y, minion.width(minion.getCurrentSprite()), minion.height);
+
     ctx.fillStyle = "white";
-    ctx.fillText(`${minion.name}`, minion.position.x + 22, minion.position.y - 5);
+    ctx.textAlign = "center";
+    ctx.fillText(`${minion.name}`, minion.position.x + minion.width(minion.getCurrentSprite()) / 2, minion.position.y - 5);
     ctx.closePath();
   })
 }
@@ -187,7 +257,9 @@ function drawTrackSprites() {
 function updateStates() {
   updateMinionPositions();
   updatePropPositions();
-  checkTraps();
+
+  if (things.traps.show)
+    checkTraps();
 }
 
 function updateMinionPositions() {
@@ -272,8 +344,9 @@ function handleKeypress(event) {
       changeBackground()
     } else if (instructions[0] == 'bg0') {
       resetBackground()
-    } else
-      selectedMinions.forEach((minion) => minion.stop());
+    } else if (instructions[0] == 'info') {
+      things.documentation.toggleOpen();
+    }
 
     focusTextArea();
   } else {
@@ -293,6 +366,8 @@ function togglePoints() {
 }
 
 function parseInstructions(instructions) {
+  if (!instructions) return;
+
   return instructions.split(' ').map((i) => { return i.replace(' ', '') }).filter((i) => i != '');
 }
 
@@ -309,6 +384,6 @@ function resetBackground() {
   canvas.style.backgroundImage = null;
 }
 
-window.addEventListener('load', (event) => {
+window.addEventListener('DOMContentLoaded', (event) => {
   initialize()
 })

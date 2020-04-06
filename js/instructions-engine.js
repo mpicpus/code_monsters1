@@ -2,7 +2,12 @@ import { Minion, Minions } from './minion.js';
 import { Track, TrackSet } from './track.js';
 import { Prop, Zeppelin, Train, Cloud } from './prop.js';
 
-// Input management
+export class InstructionSet {
+  constructor() {
+
+  }
+}
+
 export class InstructionsEngine {
   constructor(things, inputBlock, initialize) {
     this.things = things;
@@ -123,6 +128,11 @@ export class InstructionsEngine {
 
   previewTrack(minion, track) {
     things.trackPath.setPreview(track, minion ? minion.position : null)
+  }
+
+  bombs() {
+    things.traps.show = !things.traps.show;
+    console.log(things.traps.show);
   }
 
   reset() { this.initialize(); this.clear(); }

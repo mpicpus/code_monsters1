@@ -263,7 +263,7 @@ export class Train extends Prop {
 export class Cloud extends Prop {
   constructor(canvasSize) {
     let name = '';
-    let speed = 0.5;
+    let speed = 0.2;
     super(name, speed, canvasSize);
 
     let numOfTypes = 6;
@@ -272,10 +272,10 @@ export class Cloud extends Prop {
 
     this.sprites = this.getSprites();
     // this.setNativeHeight(this.setPositionY);
-    this.height = this.canvasSize.y / 3;
+    this.height = this.canvasSize.y / 2.5;
 
     this.positionY = this.canvasSize.y / 6;
-    this.position = {x: canvasSize.x, y: 0 - this.height / 2, correction: {x: 0, y: 0}};
+    this.position = {x: canvasSize.x, y: 0 - this.height / 3, correction: {x: 0, y: 0}};
     this.direction = 'left';
   }
 
@@ -301,7 +301,7 @@ export class Props {
 
   add(prop) {
     this.collection.push(prop);
-    this.collection = this.collection.sort((a, b) => a.size - b.size).reverse();
+    // this.collection = this.nonClouds().sort((a, b) => a.size - b.size).concat(this.clouds());
   }
 
   remove(prop) {

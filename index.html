@@ -2,19 +2,19 @@
 <html>
   <head>
     <title>Code Monsters 1</title>
+    <script type="module" src="./js/app.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
 
+  <!-- MAIN APP -->
   <body>
-    <script type="module" src="./js/app.js"></script>
-
     <div class="main-wrapper">
       <div id="work-place">
         <canvas id="canvas"></canvas>
       </div>
 
       <div id="code-panel">
-        <textarea class="input-area"></textarea>
+        <textarea class="input-area" placeholder="Type 'info' for info..."></textarea>
         <div class="thanks-info">
           Coded in 2020 by
           <a href="https://github.com/mpicpus/code_monsters1">Mike Trainer</a>
@@ -23,5 +23,169 @@
         </div>
       </div>
     </div>
+
+    <div class="documentation-wrapper">
+      <div class="doc-btn">
+        i
+      </div>
+      <div id="documentation" class="documentation">
+        This is the documentation.
+      </div>
+    </div>
+
   </body>
+
+  <!-- DOCUMENTATION TEMPLATES -->
+  <!-- Initial Screen -->
+  <template id='documentation-initial'>
+    <div class="documentation-inner">
+      <div class="section">
+        <div class="title">
+          <b>go</b>: instructs a minion to move in a direction.
+        </div>
+        <div class="schema">
+          name <b>go</b> direction
+        </div>
+        <div class="code">
+          jack go left
+        </div>
+        <div class="title">
+          Available directions: <b>up, down, left, right</b>
+        </div>
+        <div class="title">
+          Tip: <b>all</b> keyword can be used instead of a minion name.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">
+          <b>stop</b>: instructs a minion to stop.
+        </div>
+        <div class="schema">
+          name <b>stop</b>
+        </div>
+        <div class="code">
+          jack stop
+        </div>
+        <div class="title">
+          Tip: <b>all</b> keyword can be used instead of a minion name.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">
+          <b>make</b>: instructs a given minion to create a new minion.
+        </div>
+        <div class="schema">
+          name <b>make</b> new_name
+        </div>
+        <div class="code">
+          jack make paco
+        </div>
+        <div class="title">
+          Optional: can take <b>size</b> and <b>minion_type</b> as extra arguments.
+        </div>
+        <div class="code">
+          jack make paco 250 z
+        </div>
+        <div class="title">
+          Available minion types: <b>z, r, sr, s</b>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">
+          <b>blow</b>: instruct minions to blow themselves.
+        </div>
+        <div class="schema">
+          name <b>blow</b>
+        </div>
+        <div class="code">
+          jack blow
+        </div>
+        <div class="title">
+          Tip: <b>all</b> keyword can be used instead of a minion name.<br>
+        </div>
+        <div class="title">
+          Tip: Beware of blowing all your minions: as of this version you need at least one to make another one... If this happens consider using the <b>reset</b> command described down below.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">
+          <b>bombs</b>: activates/deactivates the "bomb" mode.
+        </div>
+        <div class="code">
+          bombs
+        </div>
+        <div class="title">
+          What's this?: Bombs will fill the screen. If a minion gets too close, it will blow, killing the minion.
+        </div>
+        <div class="title">
+          <b>Note</b>: Proximity calculation is still a bit sketchy and it's only activated for "robot" and "stone robot" minion types (r, sr). Weird things might happen anyway.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">
+          <b>zep</b>: zeppelin generator.
+        </div>
+        <div class="code">
+          zep
+        </div>
+        <div class="title">
+          Optional: can take <b>size</b>, <b>speed</b>, <b>num of ships</b> (up to 50).
+        </div>
+        <div class="schema">
+          <b>zep</b> size speed num_of_ships
+        </div>
+        <div class="code">
+          zep 300 5 50
+        </div>
+        <div class="title">
+          Note: although code is fairly efficient, generating huge amounts of objects can slow the system down.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">
+          <b>train</b>: train generator.
+        </div>
+        <div class="code">
+          train
+        </div>
+        <div class="title">
+          Optional: can take <b>size</b>, <b>speed</b>, <b>num of trains</b> (up to 50).
+        </div>
+        <div class="schema">
+          <b>train</b> size speed num_of_trains
+        </div>
+        <div class="code">
+          train 300 5 50
+        </div>
+        <div class="title">
+          Note: although code is fairly efficient, generating huge amounts of objects can slow the system down.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">
+          <b>cloud</b>: cloud generator.
+        </div>
+        <div class="code">
+          cloud
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">
+          <b>reset</b>: resets the application.
+        </div>
+        <div class="code">
+          reset
+        </div>
+      </div>
+
+    </div>
+  </template>
 </html>

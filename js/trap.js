@@ -199,8 +199,9 @@ export class Trap {
 }
 
 export class Traps {
-  constructor(type, collection) {
+  constructor(type, collection, show) {
     this.collection = collection || [];
+    this.show = show || false;
   }
 
   names() {
