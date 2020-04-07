@@ -9,56 +9,51 @@ import { Documentation } from './documentation.js';
 
 class App {
   constructor() {
-    this.spriteInterval = window.setInterval(this.updateSpriteSteps, 150);
-    this.writeEvent = document.querySelector('.input-area').addEventListener('keyup', this.handleKeypress);
-
-    this.canvasWrapper = document.querySelector('#work-place');
     this.inputBlock = document.querySelector('.input-area');
-    this.instructionsEngine;
+    this.canvasWrapper = document.querySelector('#work-place');
+    this.canvas = document.querySelector("#canvas");
 
     this.canvasSize = {
       x: this.canvasWrapper.clientWidth,
       y: this.canvasWrapper.clientHeight
     }
-
-    this.canvas = document.querySelector("#canvas");
     this.canvas.height = this.canvasSize.y;
     this.canvas.width = this.canvasSize.x;
 
-    this.ctx = this.getCanvasElement();
+    this.spriteInterval = window.setInterval(this.updateSpriteSteps, 150);
+    this.writeEvent = this.inputBlock.addEventListener('keyup', this.handleKeypress);
 
-    this.defaultSizes = {
-      minion: 180,
-      mine: 45,
-      track: 70,
-      font: 13,
-    };
+    this.ctx = this.canvas.getContext("2d");
 
     this.initialize();
 
     this.showHotPoints = false;
   }
 
-  initialize() {
-    this.input = '';
+  initialize(type) {
+    type = type || 'initial';
 
-    this.environment = {
-      type: 'initial',
-      things: {},
-      movingBg: false,
-    }
+    this.inputBlock.value = '';
+    this.screen = new Screen()
   }
 
-  onTypeChange() {
-    initialize();
+  onTypeChange(type) {
+    initialize(type);
   }
 }
 
 class Screen {
   constructor(background, things, instructions) {
-    this.backrgroundImages = images;
-    this.move = move;
-    this.interact = interact;
+    this.background = background;
+    this.things = things;
+    this.instructions = instructions;
+
+    this.defaultSizes = {
+      minion: 180,
+      trap: 45,
+      track: 70,
+      font: 13,
+    };
   }
 }
 
@@ -80,6 +75,8 @@ let fontSize = 13;
 let showHotPoints = false;
 
 let things = {};
+let currentBackground = urlSearch.has('bg') ? urlSearch.get('bg') : 14;
+let numOfBackgrounds = 18;
 
 let urlSearch = new URLSearchParams(location.search);
 let initialName = urlSearch.has('name') ? urlSearch.get('name') : 'frank';
@@ -144,6 +141,7 @@ function initialize() {
   things.documentation.toggleOpen();
 
   instructionsEngine = new InstructionsEngine(things, inputBlock, initialize);
+  changeBackground();
   window.instructionsEngine = instructionsEngine;
 
   window.things = things;
@@ -376,8 +374,11 @@ function focusTextArea() {
 }
 
 function changeBackground() {
-  let numOfBackgrounds = 15;
-  canvas.style.backgroundImage = `url(./assets/backgrounds/${Math.round(Math.random() * (numOfBackgrounds - 1)) + 1}.jpg)`;
+  currentBackground++;
+  if (currentBackground > numOfBackgrounds)
+    currentBackground = 1;
+
+  canvas.style.backgroundImage = `url(./assets/backgrounds/${currentBackground}.jpg)`;
 }
 
 function resetBackground() {
@@ -385,5 +386,8 @@ function resetBackground() {
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {
-  initialize()
+  if (document.fullScreenEnabled && document.documentElement.requestFullscreen) 
+    document.documentElement.requestFullscreen().then(initialize);
+  else
+    initialize();
 })
