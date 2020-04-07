@@ -75,11 +75,11 @@ let fontSize = 13;
 let showHotPoints = false;
 
 let things = {};
-let currentBackground = urlSearch.has('bg') ? urlSearch.get('bg') : 14;
-let numOfBackgrounds = 18;
-
 let urlSearch = new URLSearchParams(location.search);
+let currentBackground = urlSearch.has('bg') ? urlSearch.get('bg') : 0;
 let initialName = urlSearch.has('name') ? urlSearch.get('name') : 'frank';
+
+let maxBackgroundNum = 18;
 
 // Initialization
 spriteInterval = window.setInterval(updateSpriteSteps, 150);
@@ -374,11 +374,11 @@ function focusTextArea() {
 }
 
 function changeBackground() {
-  currentBackground++;
-  if (currentBackground > numOfBackgrounds)
-    currentBackground = 1;
+  if (currentBackground > maxBackgroundNum)
+    currentBackground = 0;
 
   canvas.style.backgroundImage = `url(./assets/backgrounds/${currentBackground}.jpg)`;
+  currentBackground++;
 }
 
 function resetBackground() {
