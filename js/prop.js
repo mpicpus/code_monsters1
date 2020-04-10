@@ -6,11 +6,11 @@ let  spriteSets = []
 
 // Minion class
 export class Prop {
-  constructor(name, speed, canvasSize, updateSpeed) {
+  constructor(name, speed, canvasSize, updateSpeed, type) {
     // Configurables
     this.canvasSize = canvasSize;
     this.name = name;
-    // this.type = type;
+    this.type = type;
     // this.height = height;
     // this.position = {...position, ...{correction: {x: 0, y: 0}}};
     this.actionQueue = new ActionQueue(this);
@@ -24,6 +24,12 @@ export class Prop {
     this.updateSpeed = updateSpeed || 'medium';
 
     this.speedObject = new Speed(this.speed, null);
+
+    this.sprites = this.getSprites();
+    if (['idle', 'go'].includes(this.state)) {
+      this.currentAnimationStep = Math.round(Math.random() * (this.numOfSpritesFor(this.state) - 1));
+      console.log(this.currentAnimationStep);
+    }
   }
 
   // Getters
@@ -45,6 +51,10 @@ export class Prop {
     }
 
     return sprites
+  }
+
+  numOfSpritesFor(state) {
+    return this.sprites.images[state] ? this.sprites.images[state].length : null;
   }
 
   movementLimit(direction) {
@@ -238,35 +248,27 @@ export class Prop {
 
 export class Zeppelin extends Prop {
   constructor(name, size, speed, canvasSize) {
-    super(name, speed, canvasSize, 'fast');
-    this.type = 'zeppelin';
+    super(name, speed, canvasSize, 'fast', 'zeppelin');
     this.height = parseInt(size) || 150;
     this.position = {x: 0 - this.height * 2.5, y: 40, correction: {x: 0, y: 0}};
     this.state = 'go';
-
-    this.sprites = this.getSprites();
   }
 }
 
 export class Train extends Prop {
   constructor(name, size, speed, canvasSize) {
-    super(name, speed || 1, canvasSize, 'fast');
-    this.type = 'train';
+    super(name, speed || 1, canvasSize, 'fast', 'train');
     this.height = parseInt(size) || this.canvasSize.y * 0.09;
     let positionY = this.canvasSize.y * 0.54 * Math.pow(1, 0 - this.height);
     this.position = {x: 0 - this.height * 5, y: positionY, correction: {x: 0, y: 0}};
     this.state = 'go';
-
-    this.sprites = this.getSprites();
   }
 }
 
 export class Horseman extends Prop {
   constructor(name, size, speed, canvasSize) {
     speed = speed || 3;
-    super(name, speed, canvasSize, 'faster');
-    this.type = 'horseman';
-    this.sprites = this.getSprites();
+    super(name, speed, canvasSize, 'faster', 'horseman');
     this.height = parseInt(size) || 250;
     let positionY = this.canvasSize.y * 0.60 * Math.pow(1, 0 - this.height);
     this.position = {x: 0 - (this.masterWidth() || 150), y: positionY, correction: {x: 0, y: 0}};
@@ -277,9 +279,7 @@ export class Horseman extends Prop {
 export class Dragon1 extends Prop {
   constructor(name, size, speed, canvasSize) {
     speed = speed || 3;
-    super(name, speed, canvasSize, 'faster');
-    this.type = 'dragon1';
-    this.sprites = this.getSprites();
+    super(name, speed, canvasSize, 'faster', 'dragon1');
     this.height = parseInt(size) || 350;
     let positionY = this.canvasSize.y * 0.01 * Math.pow(1, 0 - this.height);
     this.position = {x: 0 - (this.masterWidth() || 350), y: positionY, correction: {x: 0, y: 0}};
@@ -290,9 +290,7 @@ export class Dragon1 extends Prop {
 export class Dragon2 extends Prop {
   constructor(name, size, speed, canvasSize) {
     speed = speed || 3;
-    super(name, speed, canvasSize, 'faster');
-    this.type = 'dragon2';
-    this.sprites = this.getSprites();
+    super(name, speed, canvasSize, 'faster', 'dragon2');
     this.height = parseInt(size) || 250;
     let positionY = this.canvasSize.y * 0.01 * Math.pow(1, 0 - this.height);
     this.position = {x: 0 - (this.masterWidth() || 250), y: positionY, correction: {x: 0, y: 0}};
@@ -304,13 +302,11 @@ export class Cloud extends Prop {
   constructor(canvasSize) {
     let name = '';
     let speed = 0.2;
-    super(name, speed, canvasSize);
-
     let numOfTypes = 6;
-    this.type = `cloud${Math.round(Math.random() * (numOfTypes - 1)) + 1}`;
+    let type = `cloud${Math.round(Math.random() * (numOfTypes - 1)) + 1}`;
+    super(name, speed, canvasSize, type);
     this.state = 'go';
 
-    this.sprites = this.getSprites();
     // this.setNativeHeight(this.setPositionY);
     this.height = this.canvasSize.y / 2.5;
 
