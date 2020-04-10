@@ -260,6 +260,19 @@ export class Train extends Prop {
   }
 }
 
+export class Horseman extends Prop {
+  constructor(name, size, speed, canvasSize) {
+    super(name, speed, canvasSize);
+    this.type = 'horseman';
+    this.sprites = this.getSprites();
+    this.height = parseInt(size) || 150;
+    let positionY = this.canvasSize.y * 0.54 * Math.pow(1, 0 - this.height);
+    this.position = {x: 0 - (this.masterWidth() || 150), y: positionY, correction: {x: 0, y: 0}};
+    this.state = 'go';
+
+  }
+}
+
 export class Cloud extends Prop {
   constructor(canvasSize) {
     let name = '';
@@ -306,7 +319,7 @@ export class Props {
 
   remove(prop) {
     delete(this.collection[this.collection.indexOf(prop)]);
-
+    this.collection = this.collection.filter(prop => prop);
   }
 
   clouds() {
@@ -319,6 +332,5 @@ export class Props {
 
   checkZepBoundaries() {
     this.collection.filter(prop => prop.position.x > this.canvasSize.x).forEach((prop) => this.remove(prop));
-    this.collection = this.collection.filter((prop) => prop)
   }
 }

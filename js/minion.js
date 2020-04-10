@@ -1,8 +1,6 @@
 import {ActionQueue} from './action-queue.js'
 import {SpriteSet} from './sprite-set.js'
 
-let  spriteSets = []
-
 // Minion class
 export class Minion {
   constructor(name, type, height, position, canvasSize) {
@@ -20,6 +18,7 @@ export class Minion {
     this.currentAnimationStep = 0;
     this.direction = 'right';
 
+    this.spriteSets = [];
     this.sprites = this.getSprites();
     this.hotPointsCalculator = this.constructor.getHotPointsCalculator(this.type)
   }
@@ -36,10 +35,10 @@ export class Minion {
 
   // Utils
   getSprites() {
-    let sprites = spriteSets.filter(set => set.type == this.type)[0];
+    let sprites = this.spriteSets.filter(set => set.type == this.type)[0];
     if (!sprites) {
       sprites = new SpriteSet('avatars', this.type);
-      spriteSets.push(sprites);
+      this.spriteSets.push(sprites);
     }
 
     return sprites

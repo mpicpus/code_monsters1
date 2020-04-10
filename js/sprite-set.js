@@ -86,6 +86,9 @@ export class SpriteSet {
       cloud6: {
         go: 1
       },
+      horseman: {
+        go: 14
+      }
 
     }[type]
   }
