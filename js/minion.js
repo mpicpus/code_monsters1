@@ -3,7 +3,7 @@ import {SpriteSet} from './sprite-set.js'
 
 // Minion class
 export class Minion {
-  constructor(name, type, height, position, canvasSize) {
+  constructor(name, type, height, position, canvasSize,updateSpeed) {
     // Configurables
     this.canvasSize = canvasSize;
     this.name = name;
@@ -12,6 +12,7 @@ export class Minion {
     this.position = {...position, ...{correction: {x: 0, y: 0}}};
     this.actionQueue = new ActionQueue(this);
     this.speed = 1;
+    this.updateSpeed = updateSpeed || 'medium';
 
     // Inner properties
     this.state = 'idle';
