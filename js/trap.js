@@ -5,7 +5,7 @@ let  spriteSets = []
 
 // Minion class
 export class Trap {
-  constructor(name, type, height, position, canvasSize) {
+  constructor(name, type, height, position, canvasSize, updateSpeed) {
     // Configurables
     this.canvasSize = canvasSize;
     this.name = name;
@@ -14,6 +14,7 @@ export class Trap {
     this.position = {...position, ...{correction: {x: 0, y: 0}}};
     this.actionQueue = new ActionQueue(this);
     this.speed = 0.25;
+    this.updateSpeed = updateSpeed || 'medium';
 
     // Inner properties
     this.state = 'idle';

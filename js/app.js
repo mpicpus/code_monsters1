@@ -48,7 +48,7 @@ import { Documentation } from './documentation.js';
 import { InstructionsEngine } from './instructions-engine.js';
 
 let input = "";
-let ctx, spriteInterval, writeEvent, inputBlock, instructionsEngine;
+let ctx, writeEvent, inputBlock, instructionsEngine;
 let canvasSize = {};
 let minionHeight = 120;
 let mineHeight = 30;
@@ -64,17 +64,20 @@ let initialName = urlSearch.has('name') ? urlSearch.get('name') : 'frank';
 let maxBackgroundNum = 18;
 
 // Initialization
-spriteInterval = window.setInterval(updateSpriteSteps, 150);
+let spriteIntervalSlow = window.setInterval(() => {updateSpriteSteps('slow')}, 250);
+let spriteIntervalMedium = window.setInterval(() => {updateSpriteSteps('medium')}, 150);
+let spriteIntervalFast = window.setInterval(() => {updateSpriteSteps('fast')}, 70);
+let spriteIntervalFaster = window.setInterval(() => {updateSpriteSteps('faster')}, 35);
 
-function updateSpriteSteps() {
+function updateSpriteSteps(updateSpeed) {
   if (things.minions)
-    things.minions.collection.forEach((minion) => minion.updateSpriteSteps());
+    things.minions.collection.filter((minion) => minion.updateSpeed == updateSpeed).forEach((minion) => minion.updateSpriteSteps());
 
   if (things.traps)
-    things.traps.collection.forEach((trap) => trap.updateSpriteSteps());
+    things.traps.collection.filter((trap) => trap.updateSpeed == updateSpeed).forEach((trap) => trap.updateSpriteSteps());
 
   if (things.props)
-    things.props.collection.forEach((prop) => prop.updateSpriteSteps());
+    things.props.collection.filter((prop) => prop.updateSpeed == updateSpeed).forEach((prop) => prop.updateSpriteSteps());
 }
 
 // Main app

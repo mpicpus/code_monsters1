@@ -6,7 +6,7 @@ let  spriteSets = []
 
 // Minion class
 export class Prop {
-  constructor(name, speed, canvasSize) {
+  constructor(name, speed, canvasSize, updateSpeed) {
     // Configurables
     this.canvasSize = canvasSize;
     this.name = name;
@@ -21,6 +21,7 @@ export class Prop {
     this.currentAnimationStep = 0;
     this.direction = 'right';
     this.recalculateHeight = false;
+    this.updateSpeed = updateSpeed || 'medium';
 
     this.speedObject = new Speed(this.speed, null);
   }
@@ -262,14 +263,14 @@ export class Train extends Prop {
 
 export class Horseman extends Prop {
   constructor(name, size, speed, canvasSize) {
-    super(name, speed, canvasSize);
+    speed = speed || 3;
+    super(name, speed, canvasSize, 'faster');
     this.type = 'horseman';
     this.sprites = this.getSprites();
     this.height = parseInt(size) || 150;
     let positionY = this.canvasSize.y * 0.54 * Math.pow(1, 0 - this.height);
     this.position = {x: 0 - (this.masterWidth() || 150), y: positionY, correction: {x: 0, y: 0}};
     this.state = 'go';
-
   }
 }
 
