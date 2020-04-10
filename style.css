@@ -15,7 +15,7 @@ html, body {
   background-color: #333;
   background-image: url(./assets/bg01.jpg);
   background-size: cover;
-  background-position: top;
+  background-position: bottom;
 }
 
 #work-place {

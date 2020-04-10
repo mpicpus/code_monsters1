@@ -88,6 +88,10 @@ export class SpriteSet {
       },
       horseman: {
         go: 14
+      },
+      dragon1: {
+        go: 40,
+        idle: 40
       }
 
     }[type]

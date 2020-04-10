@@ -250,7 +250,7 @@ export class Zeppelin extends Prop {
 
 export class Train extends Prop {
   constructor(name, size, speed, canvasSize) {
-    super(name, speed || 1, canvasSize);
+    super(name, speed || 1, canvasSize, 'fast');
     this.type = 'train';
     this.height = parseInt(size) || this.canvasSize.y * 0.09;
     let positionY = this.canvasSize.y * 0.54 * Math.pow(1, 0 - this.height);
@@ -267,9 +267,22 @@ export class Horseman extends Prop {
     super(name, speed, canvasSize, 'faster');
     this.type = 'horseman';
     this.sprites = this.getSprites();
-    this.height = parseInt(size) || 150;
-    let positionY = this.canvasSize.y * 0.54 * Math.pow(1, 0 - this.height);
+    this.height = parseInt(size) || 250;
+    let positionY = this.canvasSize.y * 0.60 * Math.pow(1, 0 - this.height);
     this.position = {x: 0 - (this.masterWidth() || 150), y: positionY, correction: {x: 0, y: 0}};
+    this.state = 'go';
+  }
+}
+
+export class Dragon1 extends Prop {
+  constructor(name, size, speed, canvasSize) {
+    speed = speed || 3;
+    super(name, speed, canvasSize, 'faster');
+    this.type = 'dragon1';
+    this.sprites = this.getSprites();
+    this.height = parseInt(size) || 350;
+    let positionY = this.canvasSize.y * 0.01 * Math.pow(1, 0 - this.height);
+    this.position = {x: 0 - (this.masterWidth() || 350), y: positionY, correction: {x: 0, y: 0}};
     this.state = 'go';
   }
 }
