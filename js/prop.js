@@ -238,7 +238,7 @@ export class Prop {
 
 export class Zeppelin extends Prop {
   constructor(name, size, speed, canvasSize) {
-    super(name, speed, canvasSize);
+    super(name, speed, canvasSize, 'fast');
     this.type = 'zeppelin';
     this.height = parseInt(size) || 150;
     this.position = {x: 0 - this.height * 2.5, y: 40, correction: {x: 0, y: 0}};
