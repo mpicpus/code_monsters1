@@ -1,9 +1,6 @@
-import { Minion, Minions } from './minion.js';
-import { Trap, Traps } from './trap.js';
-import { Prop, Props, Zeppelin, Train } from './prop.js';
-import { Track, TrackSet, TrackPath } from './track.js';
-import { InstructionsEngine } from './instructions-engine.js';
-import { Documentation } from './documentation.js';
+import { Screen } from './screen.js';
+
+import { Background, BackgroundImage } from './background.js';
 
 // Initial data
 
@@ -17,6 +14,7 @@ class App {
       x: this.canvasWrapper.clientWidth,
       y: this.canvasWrapper.clientHeight
     }
+    
     this.canvas.height = this.canvasSize.y;
     this.canvas.width = this.canvasSize.x;
 
@@ -42,28 +40,12 @@ class App {
   }
 }
 
-class Screen {
-  constructor(background, things, instructions) {
-    this.background = background;
-    this.things = things;
-    this.instructions = instructions;
-
-    this.defaultSizes = {
-      minion: 180,
-      trap: 45,
-      track: 70,
-      font: 13,
-    };
-  }
-}
-
-class Background {
-  constructor(images, move, interact) {
-    this.images = images;
-    this.move = move;
-    this.interact = interact;
-  }
-}
+import { Minion, Minions } from './minion.js';
+import { Trap, Traps } from './trap.js';
+import { Prop, Props } from './prop.js';
+import { Track, TrackPath, TrackSet } from './track.js';
+import { Documentation } from './documentation.js';
+import { InstructionsEngine } from './instructions-engine.js';
 
 let input = "";
 let ctx, spriteInterval, writeEvent, inputBlock, instructionsEngine;
@@ -135,6 +117,9 @@ function initialize() {
 
   things.trackPath = new TrackPath();
   things.trackSet = new TrackSet(trackHeight);
+
+  things.background = new Background();
+  let bgImage = new BackgroundImage('bg0', 'base', 0, things.background)
 
   things.documentation = new Documentation('initial');
   things.documentation.toggleOpen();
@@ -331,7 +316,7 @@ function handleKeypress(event) {
 
         instructionsEngine[method](minion, ...localInstructions);
       })
-    } else if (['zep', 'train', 'z', 't'].includes(instructions[0])) {
+    } else if (['zep', 'train', 'z', 't', 'hm'].includes(instructions[0])) {
       let method = instructions[0];
       instructions.shift();
       let localInstructions = Array.from(instructions);
