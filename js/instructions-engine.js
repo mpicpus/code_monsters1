@@ -1,6 +1,6 @@
 import { Minion, Minions } from './minion.js';
 import { Track, TrackSet } from './track.js';
-import { Prop, Zeppelin, Train, Cloud, Horseman, Dragon1 } from './prop.js';
+import { Prop, Zeppelin, Train, Cloud, Horseman, Dragon1, Dragon2 } from './prop.js';
 
 export class InstructionSet {
   constructor() {
@@ -143,6 +143,21 @@ export class InstructionsEngine {
       });
     } else
       things.props.add(new Dragon1('dragon1', size, speed, things.props.canvasSize));
+  }
+
+    dr2(size, speed, number) {
+    if (number) {  
+      size = size ? parseInt(size) : null;
+      speed = speed ? parseInt(speed) : null;
+      let num = parseInt(number) > 50 ? 50 : parseInt(number);
+      Array.from({length: parseInt(num)}, () => {
+        let name = 'dragon2';
+        let randSize = Math.random() * (size - size / 10) + size / 10;
+        let randSpeed = Math.random() * (speed - speed / 5) + speed / 5;
+        things.props.add(new Dragon2(name, randSize, randSpeed, things.props.canvasSize))
+      });
+    } else
+      things.props.add(new Dragon2('dragon2', size, speed, things.props.canvasSize));
   }
 
   track(minion, track) {

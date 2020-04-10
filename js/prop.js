@@ -287,6 +287,19 @@ export class Dragon1 extends Prop {
   }
 }
 
+export class Dragon2 extends Prop {
+  constructor(name, size, speed, canvasSize) {
+    speed = speed || 3;
+    super(name, speed, canvasSize, 'faster');
+    this.type = 'dragon2';
+    this.sprites = this.getSprites();
+    this.height = parseInt(size) || 250;
+    let positionY = this.canvasSize.y * 0.01 * Math.pow(1, 0 - this.height);
+    this.position = {x: 0 - (this.masterWidth() || 250), y: positionY, correction: {x: 0, y: 0}};
+    this.state = 'go';
+  }
+}
+
 export class Cloud extends Prop {
   constructor(canvasSize) {
     let name = '';
