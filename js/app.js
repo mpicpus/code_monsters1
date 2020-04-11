@@ -121,8 +121,10 @@ function initialize() {
   things.trackPath = new TrackPath();
   things.trackSet = new TrackSet(trackHeight);
 
-  things.background = new Background();
-  let bgImage = new BackgroundImage('bg0', 'base', 0, things.background)
+  things.background = new Background(null, null, canvasSize, 'initial');
+  let bgImage = new BackgroundImage('2', 0, null, null, things.background);
+  bgImage.move = function() { this.position.x = this.position.x - 0.1 };
+  things.background.addImage(bgImage);
 
   things.documentation = new Documentation('initial');
   things.documentation.toggleOpen();
@@ -161,6 +163,8 @@ function draw() {
     drawTrapSprites();
   
   drawTrackSprites();
+
+  things.background.draw(ctx);
 
   window.requestAnimationFrame(draw);
 }
@@ -243,6 +247,7 @@ function drawTrackSprites() {
 function updateStates() {
   updateMinionPositions();
   updatePropPositions();
+  things.background.move();
 
   if (things.traps.show)
     checkTraps();

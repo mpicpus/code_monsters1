@@ -7,7 +7,8 @@ import { Prop, Props, Zeppelin, Train } from './prop.js';
 import { Track, TrackSet, TrackPath } from './track.js';
 
 export class Screen {
-  constructor(background, things, instructions) {
+  constructor(name, background, things, instructions) {
+    this.name = name;
     this.background = background;
     this.things = things;
     this.instructions = instructions;
