@@ -319,11 +319,15 @@ function handleKeypress(event) {
 
         instructionsEngine[method](minion, ...localInstructions);
       })
-    } else if (['zep', 'train', 'z', 't', 'hm', 'dr1', 'dr2', 'dr3'].includes(instructions[0])) {
+    } else if (instructions[0].match(/zep|train|z|t|hm/)) {
       let method = instructions[0];
       instructions.shift();
       let localInstructions = Array.from(instructions);
-      instructionsEngine[method](... localInstructions);      
+      instructionsEngine[method](... localInstructions); 
+    } else if (instructions[0].match(/^dr(\d+)$/)) {
+      let method = 'dr';
+      instructions[0] = instructions[0].replace('dr', '');
+      instructionsEngine[method](... instructions);
     } else if (['points'].includes(instructions[0])) {
       togglePoints();
     } else if (instructions[0] == 'bg') {

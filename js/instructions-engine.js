@@ -130,49 +130,21 @@ export class InstructionsEngine {
       things.props.add(new Horseman('horseman', size, speed, things.props.canvasSize));
   }
 
-  dr1(size, speed, number) {
-    if (number) {  
-      size = size ? parseInt(size) : null;
-      speed = speed ? parseInt(speed) : null;
-      let num = parseInt(number) > 50 ? 50 : parseInt(number);
-      Array.from({length: parseInt(num)}, () => {
-        let name = 'dragon1';
-        let randSize = Math.random() * (size - size / 10) + size / 10;
-        let randSpeed = Math.random() * (speed - speed / 5) + speed / 5;
-        things.props.add(new Dragon1(name, randSize, randSpeed, things.props.canvasSize))
-      });
-    } else
-      things.props.add(new Dragon1('dragon1', size, speed, things.props.canvasSize));
-  }
+  dr(type, size, speed, number) {
+    let name = `dragon${type}`;
+    let dragonClass = eval(`Dragon${type}`);
 
-    dr2(size, speed, number) {
-    if (number) {  
+    if (number) {
       size = size ? parseInt(size) : null;
       speed = speed ? parseInt(speed) : null;
       let num = parseInt(number) > 50 ? 50 : parseInt(number);
       Array.from({length: parseInt(num)}, () => {
-        let name = 'dragon2';
         let randSize = Math.random() * (size - size / 10) + size / 10;
         let randSpeed = Math.random() * (speed - speed / 5) + speed / 5;
-        things.props.add(new Dragon2(name, randSize, randSpeed, things.props.canvasSize))
+        things.props.add(new dragonClass(name, randSize, randSpeed, things.props.canvasSize))
       });
     } else
-      things.props.add(new Dragon2('dragon2', size, speed, things.props.canvasSize));
-  }
-
-  dr3(size, speed, number) {
-    if (number) {  
-      size = size ? parseInt(size) : null;
-      speed = speed ? parseInt(speed) : null;
-      let num = parseInt(number) > 50 ? 50 : parseInt(number);
-      Array.from({length: parseInt(num)}, () => {
-        let name = 'dragon3';
-        let randSize = Math.random() * (size - size / 10) + size / 10;
-        let randSpeed = Math.random() * (speed - speed / 5) + speed / 5;
-        things.props.add(new Dragon3(name, randSize, randSpeed, things.props.canvasSize))
-      });
-    } else
-      things.props.add(new Dragon3('dragon3', size, speed, things.props.canvasSize));
+      things.props.add(new dragonClass(name, size, speed, things.props.canvasSize));
   }
 
   track(minion, track) {
