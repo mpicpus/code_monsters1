@@ -26,14 +26,19 @@ export class Prop {
     this.speedObject = new Speed(this.speed, null);
 
     this.sprites = this.getSprites();
+
     if (['idle', 'go'].includes(this.state)) {
-      this.currentAnimationStep = Math.round(Math.random() * (this.numOfSpritesFor(this.state) - 1));
-      console.log(this.currentAnimationStep);
+      setTimeout(() => {
+        this.currentAnimationStep = Math.round(Math.random() * (this.numOfSpritesFor(this.state) - 1));
+        console.log(this.currentAnimationStep);
+      }, 300)
     }
   }
 
   // Getters
   width(img) {
+    if (!img) debugger;
+
     return img.width / img.height * this.height;
   }
 
