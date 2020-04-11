@@ -109,6 +109,14 @@ export class SpriteSet {
         go: 10,
         idle: 10
       },
+      dragon6: {
+        go: 40,
+        idle: 40
+      },
+      dragon7: {
+        go: 9,
+        idle: 9
+      },
 
     }[type]
   }
