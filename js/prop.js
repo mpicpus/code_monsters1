@@ -309,6 +309,18 @@ export class Dragon3 extends Prop {
   }
 }
 
+export class Dragon4 extends Prop {
+  constructor(name, size, speed, canvasSize) {
+    speed = speed || 2;
+    size = size || 150;
+    super(name, speed, canvasSize, 'fast', 'dragon4');
+    this.height = parseInt(size) || 250;
+    let positionY = this.canvasSize.y * 0.01 * Math.pow(1, 0 - this.height);
+    this.position = {x: 0 - (this.masterWidth() || 500), y: positionY, correction: {x: 0, y: 0}};
+    this.state = 'go';
+  }
+}
+
 export class Cloud extends Prop {
   constructor(canvasSize) {
     let name = '';

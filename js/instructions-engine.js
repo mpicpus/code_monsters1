@@ -1,6 +1,6 @@
 import { Minion, Minions } from './minion.js';
 import { Track, TrackSet } from './track.js';
-import { Prop, Zeppelin, Train, Cloud, Horseman, Dragon1, Dragon2, Dragon3 } from './prop.js';
+import { Prop, Zeppelin, Train, Cloud, Horseman, Dragon1, Dragon2, Dragon3, Dragon4 } from './prop.js';
 
 export class InstructionSet {
   constructor() {
