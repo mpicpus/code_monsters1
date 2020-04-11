@@ -132,7 +132,13 @@ export class InstructionsEngine {
 
   dr(type, size, speed, number) {
     let name = `dragon${type}`;
-    let dragonClass = eval(`Dragon${type}`);
+    let dragonClass;
+    try {
+      dragonClass = eval(`Dragon${type}`);
+    } catch {
+      console.log('Dragon number not recognized. Please contact daddy for support.');
+      return;
+    }
 
     if (number) {
       size = size ? parseInt(size) : null;
