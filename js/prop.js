@@ -382,6 +382,39 @@ export class Cloud extends Prop {
   }
 }
 
+export class Ufo1 extends Prop {
+  constructor(name, size, speed, canvasSize) {
+    speed = speed || 2;
+    super(name, speed, canvasSize, 'fast', 'ufo1');
+    this.height = parseInt(size) || 150;
+    let positionY = this.canvasSize.y * 0.01 * Math.pow(1, 0 - this.height);
+    this.position = {x: 0 - (this.masterWidth() || 250), y: positionY, correction: {x: 0, y: 0}};
+    this.state = 'go';
+  }
+}
+
+export class Ufo2 extends Prop {
+  constructor(name, size, speed, canvasSize) {
+    speed = speed || 2;
+    super(name, speed, canvasSize, 'fast', 'ufo2');
+    this.height = parseInt(size) || 150;
+    let positionY = this.canvasSize.y * 0.01 * Math.pow(1, 0 - this.height);
+    this.position = {x: 0 - (this.masterWidth() || 250), y: positionY, correction: {x: 0, y: 0}};
+    this.state = 'go';
+  }
+}
+
+export class Ufo3 extends Prop {
+  constructor(name, size, speed, canvasSize) {
+    speed = speed || 2;
+    super(name, speed, canvasSize, 'fast', 'ufo3');
+    this.height = parseInt(size) || 150;
+    let positionY = this.canvasSize.y * 0.01 * Math.pow(1, 0 - this.height);
+    this.position = {x: 0 - (this.masterWidth() || 250), y: positionY, correction: {x: 0, y: 0}};
+    this.state = 'go';
+  }
+}
+
 export class Props {
   constructor(collection, canvasSize) {
     this.collection = collection || [];

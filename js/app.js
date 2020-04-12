@@ -61,7 +61,7 @@ let urlSearch = new URLSearchParams(location.search);
 let currentBackground = urlSearch.has('bg') ? urlSearch.get('bg') : 0;
 let initialName = urlSearch.has('name') ? urlSearch.get('name') : 'frank';
 
-let maxBackgroundNum = 18;
+let maxBackgroundNum = 19;
 
 // Initialization
 let spriteIntervalSlow = window.setInterval(() => {updateSpriteSteps('slow')}, 250);
@@ -319,7 +319,7 @@ function handleKeypress(event) {
 
         instructionsEngine[method](minion, ...localInstructions);
       })
-    } else if (instructions[0].match(/zep|train|z|t|hm/)) {
+    } else if (instructions[0].match(/zep|train|z|t|hm|ufo/)) {
       let method = instructions[0];
       instructions.shift();
       let localInstructions = Array.from(instructions);

@@ -1,6 +1,6 @@
 import { Minion, Minions } from './minion.js';
 import { Track, TrackSet } from './track.js';
-import { Prop, Zeppelin, Train, Cloud, Horseman, Dragon1, Dragon2, Dragon3, Dragon4, Dragon5, Dragon6, Dragon7 } from './prop.js';
+import { Prop, Zeppelin, Train, Cloud, Horseman, Dragon1, Dragon2, Dragon3, Dragon4, Dragon5, Dragon6, Dragon7, Ufo1, Ufo2, Ufo3 } from './prop.js';
 
 export class InstructionSet {
   constructor() {
@@ -152,6 +152,41 @@ export class InstructionsEngine {
     } else
       things.props.add(new dragonClass(name, size, speed, things.props.canvasSize));
   }
+
+  ufo(size, speed, number) {
+    let numOfClasses = 3;
+    let type = Math.round(Math.random() * (numOfClasses - 1)) + 1;
+    let name = `ufo${type}`;
+    let ufoClass;
+    try {
+      ufoClass = eval(`Ufo${type}`);
+    } catch {
+      console.log(`"Ufo${type}" class not recognized. Please contact daddy for support.`);
+      return;
+    }
+
+    if (number) {
+      size = size ? parseInt(size) : null;
+      speed = speed ? parseInt(speed) : null;
+      let num = parseInt(number) > 50 ? 50 : parseInt(number);
+      Array.from({length: parseInt(num)}, () => {
+        type = Math.round(Math.random() * (numOfClasses - 1)) + 1;
+        name = `ufo${type}`;
+        try {
+          ufoClass = eval(`Ufo${type}`);
+        } catch {
+          console.log('Ufo number not recognized. Please contact daddy for support.');
+          return;
+        }
+
+        let randSize = Math.random() * (size - size / 10) + size / 10;
+        let randSpeed = Math.random() * (speed - speed / 5) + speed / 5;
+        things.props.add(new ufoClass(name, randSize, randSpeed, things.props.canvasSize))
+      });
+    } else
+      things.props.add(new ufoClass(name, size, speed, things.props.canvasSize));
+  }
+
 
   track(minion, track) {
     minion.build();

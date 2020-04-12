@@ -117,6 +117,18 @@ export class SpriteSet {
         go: 9,
         idle: 9
       },
+      ufo1: {
+        go: 19,
+        idle: 19
+      },
+      ufo2: {
+        go: 28,
+        idle: 28
+      },
+      ufo3: {
+        go: 16,
+        idle: 16
+      },
 
     }[type]
   }
