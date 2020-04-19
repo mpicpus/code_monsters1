@@ -361,11 +361,11 @@ export class Dragon7 extends Prop {
 
 export class Cloud extends Prop {
   constructor(canvasSize) {
-    let name = '';
+    let name = 'cloud';
     let speed = 0.2;
     let numOfTypes = 6;
     let type = `cloud${Math.round(Math.random() * (numOfTypes - 1)) + 1}`;
-    super(name, speed, canvasSize, type);
+    super(name, speed, canvasSize, 'slow', type);
     this.state = 'go';
 
     // this.setNativeHeight(this.setPositionY);

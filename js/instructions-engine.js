@@ -130,13 +130,15 @@ export class InstructionsEngine {
       things.props.add(new Horseman('horseman', size, speed, things.props.canvasSize));
   }
 
-  dr(type, size, speed, number) {
+  dr(size, speed, number) {
+    let numOfClasses = 7
+    let type = Math.round(Math.random() * (numOfClasses - 1)) + 1;
     let name = `dragon${type}`;
     let dragonClass;
     try {
       dragonClass = eval(`Dragon${type}`);
     } catch {
-      console.log('Dragon number not recognized. Please contact daddy for support.');
+      console.log(`Dragon class (Dragon${type}) not recognized. Please contact daddy for support.`);
       return;
     }
 
@@ -145,6 +147,14 @@ export class InstructionsEngine {
       speed = speed ? parseInt(speed) : null;
       let num = parseInt(number) > 50 ? 50 : parseInt(number);
       Array.from({length: parseInt(num)}, () => {
+        type = Math.round(Math.random() * (numOfClasses - 1)) + 1;
+        name = `dragon${type}`;
+        try {
+          dragonClass = eval(`Dragon${type}`);
+        } catch {
+          console.log(`Dragon class (Dragon${type}) not recognized. Please contact daddy for support.`);
+          return;
+        }
         let randSize = Math.random() * (size - size / 10) + size / 10;
         let randSpeed = Math.random() * (speed - speed / 5) + speed / 5;
         things.props.add(new dragonClass(name, randSize, randSpeed, things.props.canvasSize))
@@ -187,6 +197,11 @@ export class InstructionsEngine {
       things.props.add(new ufoClass(name, size, speed, things.props.canvasSize));
   }
 
+  travel_to(planet) {
+    if (window.mode != 'space') return;
+
+    let planetClass = `${capitalize(planet)}`
+  }
 
   track(minion, track) {
     minion.build();

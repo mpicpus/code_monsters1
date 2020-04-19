@@ -319,15 +319,11 @@ function handleKeypress(event) {
 
         instructionsEngine[method](minion, ...localInstructions);
       })
-    } else if (instructions[0].match(/zep|train|z|t|hm|ufo/)) {
+    } else if (instructions[0].match(/zep|train|z|t|hm|ufo|dr/)) {
       let method = instructions[0];
       instructions.shift();
       let localInstructions = Array.from(instructions);
       instructionsEngine[method](... localInstructions); 
-    } else if (instructions[0].match(/^dr(\d+)$/)) {
-      let method = 'dr';
-      instructions[0] = instructions[0].replace('dr', '');
-      instructionsEngine[method](... instructions);
     } else if (['points'].includes(instructions[0])) {
       togglePoints();
     } else if (instructions[0] == 'bg') {
@@ -336,6 +332,13 @@ function handleKeypress(event) {
       resetBackground()
     } else if (instructions[0] == 'info') {
       things.documentation.toggleOpen();
+    } else if (instructions[0] == 'space') {
+      window.mode = 'space';
+      changeBackground(19);
+    } else if (instructions[0] == 'travel') {
+      let method = 'travel_to';
+      let params = instructions[0].replace('travel to', '');
+      instructionsEngine[method](params);
     }
 
     focusTextArea();
@@ -365,11 +368,13 @@ function focusTextArea() {
   inputBlock.focus();
 }
 
-function changeBackground() {
+function changeBackground(num) {
   if (currentBackground > maxBackgroundNum)
     currentBackground = 0;
 
-  canvas.style.backgroundImage = `url(./assets/backgrounds/${currentBackground}.jpg)`;
+  num = num || currentBackground
+
+  canvas.style.backgroundImage = `url(./assets/backgrounds/${num}.jpg)`;
   currentBackground++;
 }
 
