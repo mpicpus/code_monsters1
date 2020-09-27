@@ -24,6 +24,7 @@ export class PeaCannon extends GoodGuys {
     attrs.animationSpeed = 'faster';
 
     super(attrs);
+    this.shotSpan = 800;
     this.throw();
     this.startCannon();
   }
@@ -31,7 +32,7 @@ export class PeaCannon extends GoodGuys {
   startCannon() {
     if (this.shotInterval) return;
     
-    this.shotInterval = setInterval(() => { this.throw() }, 800);
+    this.shotInterval = setInterval(() => { this.throw() }, this.shotSpan);
   }
 
   stopCannon() {
@@ -39,6 +40,18 @@ export class PeaCannon extends GoodGuys {
 
     clearInterval(this.shotInterval);
     this.shotInterval = null;
+  }
+
+  setTurboMode() {
+    this.stopCannon();
+    this.shotSpan = 50;
+    this.startCannon();
+  }
+
+  removeTurboMode() {
+    this.stopCannon();
+    this.shotSpan = 800;
+    this.startCannon();
   }
 
   throw() {
