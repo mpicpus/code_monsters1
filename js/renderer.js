@@ -89,4 +89,12 @@ export class Renderer {
   removeSprite(sprite) {
     this.stage.removeChild(sprite)
   }
+
+  stop() {
+    this.renderer.ticker.stop();
+  }
+
+  go() {
+    this.renderer.ticker.start();
+  }
 }

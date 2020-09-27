@@ -78,6 +78,7 @@ export class PvzZombie extends BadGuys {
     attrs.animationSpeed = 'medium';
     attrs.defaultState = 'go';
     super(attrs);
+    this.displaysName = false;
   }
 
   move() {

@@ -54,6 +54,14 @@ export class InstructionsEngine {
   getThing(command) {
     return this.screen.things.avatar.find(a => a.name == command)
   }
+
+  stop() {
+    this.screen.renderer.stop()
+  }
+
+  go() {
+    this.screen.renderer.go()
+  }
 }
 
 // Engine for Things class.
