@@ -76,6 +76,14 @@ export class Thing {
     this.setState()
   }
 
+  onStateComplete() {
+    return {}
+  }
+
+  destroy() {
+    this.screen.things.remove(this);
+  }
+
   stateNames() {
     return this.states ? Object.keys(this.states) : [];
   }
@@ -170,7 +178,7 @@ export class Thing {
   }
 
   onTotalDamage() {
-    this.screen.things.remove(this);
+    this.destroy();
   }
 }
 
@@ -274,10 +282,6 @@ export class Things {
       thing.position.x > this.screen.canvas.canvasSize.x ||
       thing.position.y < 0 ||
       thing.position.y > this.screen.canvas.canvasSize.y
-  }
-
-  takeDamage() {
-    return this.collection.filter(thing => thing.takesDamage)
   }
 
   rogueThings() {

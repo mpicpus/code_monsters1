@@ -20,7 +20,7 @@ export class SpriteSet {
 
       if (this.thing.states) {
         result = Object.keys(this.thing.states).map(state => {
-          let array = Array(this.thing.states[state]).fill(null);
+          let array = Array(this.thing.states[state].steps).fill(null);
           return array.map((el, index) => this.getSpriteImage(state, index + 1))
         }).flat()
       } else {
@@ -33,9 +33,13 @@ export class SpriteSet {
         if (textures.length > 1) {
           this.sprites = {};
           for (let state in this.thing.states) {
-            let stateTextures = textures.filter(t => t.textureCacheIds[0].includes(state))
-            this.sprites[state] = new this.renderer.AnimatedSprite(stateTextures);
-            this.sprites[state].animationSpeed = this.getAnimationSpeed();
+            let stateTextures = textures.filter(t => t.textureCacheIds[0].includes(state));
+            let sprite = new this.renderer.AnimatedSprite(stateTextures);
+            sprite.loop = this.thing.states[state].loop === false ? false : true;
+            sprite.onComplete = this.thing.onStateComplete()[state];
+            sprite.animationSpeed = this.getAnimationSpeed();
+
+            this.sprites[state] = sprite;
 
             if (this.thing.displaysName)
               this.setNameText(this.sprites[state]);
@@ -136,7 +140,7 @@ export class SpriteSet {
 
   destroySprites() {
     this.thing.stateNames().forEach((state) => {
-      this.renderer.stage.removeChild(this.sprites[state])
+      this.sprites[state].destroy(false);
     })
   }
 

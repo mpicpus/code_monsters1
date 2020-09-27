@@ -56,7 +56,7 @@ export class ScreenInitial extends Screen {
   generateRandomZombie() {
     let randomWait = Math.random() * 3000 + 50;
     setTimeout(() => {
-      this.instructions.zombiepvs();
+      this.instructions.zombie();
       this.generateRandomZombie();
     }, randomWait)
   }
@@ -88,7 +88,7 @@ export class InstructionsEngineInitial extends InstructMod.InstructionsEngine {
     super(attrs);
   }
 
-  zombiepvs() {
+  zombiepvz() {
     let attrs = {
       name: 'zom1',
       position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.70},
@@ -106,10 +106,10 @@ export class InstructionsEngineInitial extends InstructMod.InstructionsEngine {
       name: 'zom1',
       position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.70},
       dimensions: {height: 150},
-      scale: 1
+      scale: .85
     };
 
-    this.screen.things.createAndAdd(AvatarMod.PvzZombie, attrs);
+    this.screen.things.createAndAdd(AvatarMod.Zombie, attrs);
     if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
       this.screen.things.pea_cannon[0].startCannon()
   }

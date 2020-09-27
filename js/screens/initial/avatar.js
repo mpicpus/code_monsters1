@@ -18,7 +18,7 @@ export class GoodGuys extends Avatar {
 export class PeaCannon extends GoodGuys {
   constructor(attrs = {}) {
     attrs.states = {
-      idle: 60
+      idle: { steps: 60, loop: true }
     },
 
     attrs.animationSpeed = 'faster';
@@ -71,8 +71,8 @@ export class PeaCannon extends GoodGuys {
 export class PvzZombie extends BadGuys {
   constructor(attrs = {}) {
     attrs.states = {
-      idle: 20,
-      go: 20
+      idle: { steps: 20, loop: true },
+      go: { steps: 20, loop: true }
     }
 
     attrs.animationSpeed = 'medium';
@@ -84,5 +84,46 @@ export class PvzZombie extends BadGuys {
   move() {
     this.position.x -= 0.5;
     this.setPosition();
+  }
+}
+
+export class Zombie extends BadGuys {
+  constructor(attrs) {
+    attrs.states = {
+      appear: { steps: 11, loop: false },
+      build: { steps: 7, loop: false },
+      die: { steps: 8, loop: false },
+      go: { steps:10 },
+      idle: { steps: 6 }
+    }
+
+    attrs.animationSpeed = 'medium';
+    attrs.defaultState = 'appear';
+    super(attrs);
+    this.displaysName = false;
+  }
+
+  onStateComplete() {
+    return {
+      appear: () => {
+        this.setState('go');
+      },
+      die: () => {
+        this.destroy();
+      }
+    }
+  }
+
+  onTotalDamage() {
+    this.die();
+  }
+
+  move() {
+    this.position.x -= 0.5;
+    this.setPosition();
+  }
+
+  die() {
+    this.setState('die')
   }
 }

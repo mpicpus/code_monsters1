@@ -15,12 +15,12 @@ export class Avatar extends Thing {
 export class Robot extends Avatar {
   constructor(attrs = {}) {
     attrs.states = {
-        idle: 5,
-        go: 5,
-        die: 9,
-        build: 7,
-        appear: 9
-      };
+      idle: { steps: 5, loop: true },
+      go: { steps: 5, loop: true },
+      die: { steps: 9, loop: true },
+      build: { steps: 7, loop: true },
+      appear: { steps: 9, loop: true }
+    };
 
     super(attrs);
   }
@@ -29,11 +29,11 @@ export class Robot extends Avatar {
 export class StoneRobot extends Avatar {
   constructor(attrs = {}) {
     attrs.states = {
-      appear: 15,
-      build: 6,
-      die: 7,
-      go: 6,
-      idle: 6
+      appear: { steps: 15, loop: true },
+      build: { steps: 6, loop: true },
+      die: { steps: 7, loop: true },
+      go: { steps: 6, loop: true },
+      idle: { steps: 6, loop: true }
     },
     
     super(attrs);
