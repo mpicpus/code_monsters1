@@ -166,7 +166,6 @@ export class Thing {
     damage = damage || 0;
     
     this.strength -= damage;
-    console.log(this.strength)
     if (this.strength <= 0) this.onTotalDamage();
   }
 

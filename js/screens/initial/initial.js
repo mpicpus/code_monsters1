@@ -86,5 +86,11 @@ export class InstructionsEngineInitial extends InstructMod.InstructionsEngine {
     };
 
     this.screen.things.createAndAdd(AvatarMod.PvzZombie, attrs);
+    if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
+      this.screen.things.pea_cannon[0].startCannon()
+  }
+
+  peacannon() {
+
   }
 }

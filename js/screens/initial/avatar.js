@@ -25,11 +25,20 @@ export class PeaCannon extends GoodGuys {
 
     super(attrs);
     this.throw();
-    this.initializeCannon()
+    this.startCannon();
   }
 
-  initializeCannon() {
-    this.interval = setInterval(() => { this.throw() }, 800);
+  startCannon() {
+    if (this.shotInterval) return;
+    
+    this.shotInterval = setInterval(() => { this.throw() }, 800);
+  }
+
+  stopCannon() {
+    if (!this.shotInterval) return;
+
+    clearInterval(this.shotInterval);
+    this.shotInterval = null;
   }
 
   throw() {
@@ -41,6 +50,8 @@ export class PeaCannon extends GoodGuys {
     };
 
     this.screen.things.createAndAdd(ProjectileMod.Pea, {position: position, screen: this.screen})
+
+    if (!this.screen.things.bad_guys || this.screen.things.bad_guys.length == 0) this.stopCannon();
   }
 }
 
