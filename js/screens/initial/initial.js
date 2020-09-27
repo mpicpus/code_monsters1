@@ -48,6 +48,17 @@ export class ScreenInitial extends Screen {
     };
 
     this.things.createAndAdd(AvatarMod.PvzZombie, attrs);
+
+    // Zombie apocalypse:
+    this.generateRandomZombie();
+  }
+
+  generateRandomZombie() {
+    let randomWait = Math.random() * 3000 + 50;
+    setTimeout(() => {
+      this.instructions.zombiepvs();
+      this.generateRandomZombie();
+    }, randomWait)
   }
 
   // Main game loop, called for each graphic render.
