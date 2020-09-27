@@ -9,7 +9,6 @@ export class Pea extends Projectile {
     };
 
     attrs.scale = .15;
-    attrs.defaultState = 'go';
 
     super(attrs);
 

@@ -64,13 +64,16 @@ export class Thing {
     this.family = this.family || this.getFamily();
     this.sprites = new SpriteSet(this);
     this.instructionSet = this.instructionSet || new InstructionSet({thing: this, addBasicSet: true})
-    this.setState()
   }
 
   onImageLoad() {
     this.setState(this.defaultState);
     this.setPosition();
     this.setScale();
+  }
+
+  onSpritesLoaded() {
+    this.setState()
   }
 
   stateNames() {
@@ -156,6 +159,19 @@ export class Thing {
       family.unshift(this.screen.familyName());
     
     return family
+  }
+
+  // Damage functions.
+  takeDamage(damage) {
+    damage = damage || 0;
+    
+    this.strength -= damage;
+    console.log(this.strength)
+    if (this.strength <= 0) this.onTotalDamage();
+  }
+
+  onTotalDamage() {
+    this.screen.things.remove(this);
   }
 }
 

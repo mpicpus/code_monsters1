@@ -2,9 +2,10 @@ import { Thing } from './thing.js';
 
 export class Projectile extends Thing {
   constructor(attrs) {
+    attrs.defaultState = 'go';
     super(attrs)
 
-    this.damageable = [];
+    this.damageableTypes = [];
   }
 
   damageableThings() {

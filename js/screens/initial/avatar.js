@@ -47,10 +47,17 @@ export class PeaCannon extends GoodGuys {
 export class PvzZombie extends BadGuys {
   constructor(attrs = {}) {
     attrs.states = {
-      idle: 20
+      idle: 20,
+      go: 20
     }
 
     attrs.animationSpeed = 'medium';
-    super(attrs)
+    attrs.defaultState = 'go';
+    super(attrs);
+  }
+
+  move() {
+    this.position.x -= 0.5;
+    this.setPosition();
   }
 }

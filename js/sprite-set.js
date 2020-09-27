@@ -10,6 +10,7 @@ export class SpriteSet {
 
     this.loadImages().then(() => {
       this.loaded = true;
+      this.thing.onSpritesLoaded();
     });
   }
 

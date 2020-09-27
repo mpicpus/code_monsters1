@@ -63,7 +63,8 @@ export class ScreenInitial extends Screen {
       projectiles.forEach((projectile) => {
         let thing = projectile.hitThing();
         if (thing) {
-          this.things.remove([thing, projectile])
+          thing.takeDamage(projectile.damage);
+          this.things.remove(projectile);
         }
       })
     }
