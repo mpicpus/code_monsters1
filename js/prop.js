@@ -37,8 +37,6 @@ export class Prop {
 
   // Getters
   width(img) {
-    if (!img) debugger;
-
     return img.width / img.height * this.height;
   }
 
@@ -356,6 +354,14 @@ export class Dragon7 extends Prop {
     let positionY = this.canvasSize.y * 0.01 * Math.pow(1, 0 - this.height);
     this.position = {x: 0 - (this.masterWidth() || 250), y: positionY, correction: {x: 0, y: 0}};
     this.state = 'go';
+  }
+}
+
+export class Planet extends Prop {
+  constructor(type, speed) {
+    type = type;
+    speed = speed || 2;
+    super(type, speed, canvasSize, 'slow', type)
   }
 }
 

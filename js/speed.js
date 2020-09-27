@@ -1,5 +1,8 @@
 export class Speed {
-  constructor(currentSpeed, targetSpeed) {
+  constructor({
+    currentSpeed = 0,
+    targetSpeed = null
+  } = {}) {
     this.currentSpeed = parseFloat(currentSpeed) || 0;
     this.targetSpeed = targetSpeed != null && typeof(parseFloat(targetSpeed)) == 'number' ? parseFloat(targetSpeed) : null;
     this.originalSpeed = this.currentSpeed;

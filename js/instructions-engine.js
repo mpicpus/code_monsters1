@@ -198,9 +198,13 @@ export class InstructionsEngine {
   }
 
   travel_to(planet) {
+    function moveTo() {
+
+    }
+
     if (window.mode != 'space') return;
 
-    let planetClass = `${capitalize(planet)}`
+    things.props.add(new Planet(planet));
   }
 
   track(minion, track) {

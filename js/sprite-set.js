@@ -1,46 +1,146 @@
 // SPRITES
 export class SpriteSet {
-  constructor(family, type, states) {
-    this.family = family || 'avatar';
-    this.type = this.constructor.avatarSteps(type) ? type : 'stone_robot';
-    this.states = states || this.constructor.avatarSteps(this.type);
-    this.images = this.loadImages()
+  // 'callbackName' to be called upon loadImages.
+  constructor(thing) {
+    this.thing = thing;
+    this.loaded = false;
+    this.renderer = thing.screen.renderer;
+    this.sprites = null;
+    this.state = null;
+
+    this.loadImages().then(() => {
+      this.loaded = true;
+    });
   }
 
   loadImages() {
-    let images = {};
-    
-    for (let state in this.states) {
-      images[state] = Array(this.states[state]).fill(0).map((el, index) => {
-        let img = new Image();
-        img.src = this.getSpriteImage(state, index + 1);
-        return img;
-      });
-    }
+    return new Promise((resolve, reject) => {
+      let result, imagePaths;
 
-    return images;
+      if (this.thing.states) {
+        result = Object.keys(this.thing.states).map(state => {
+          let array = Array(this.thing.states[state]).fill(null);
+          return array.map((el, index) => this.getSpriteImage(state, index + 1))
+        }).flat()
+      } else {
+        result = [this.getSpriteImage()];
+      }
+
+      imagePaths = this.thing.screen.spritesCollection.contains(this) ? [] : result;
+      
+      this.thing.screen.spritesCollection.add(this, imagePaths).then((textures) => {
+        if (textures.length > 1) {
+          this.sprites = {};
+          for (let state in this.thing.states) {
+            let stateTextures = textures.filter(t => t.textureCacheIds[0].includes(state))
+            this.sprites[state] = new this.renderer.AnimatedSprite(stateTextures);
+            this.sprites[state].animationSpeed = this.getAnimationSpeed();
+
+            if (this.thing.displaysName)
+              this.setNameText(this.sprites[state]);
+            
+            this.renderer.stage.addChild(this.sprites[state]);
+          }
+        } else {
+          this.sprite = new this.renderer.Sprite(textures[0])
+          this.renderer.stage.addChild(this.sprite);
+        }
+
+        this.thing.onImageLoad();
+
+        resolve(result)
+      });
+    })
   }
 
   getSpriteImage(state, index) {
-    return `assets/${this.family}/${this.type}/${state}/${index}.png`
+    return `assets/screens/${this.thing.getFolder()}/${state ? state + '/' + index : this.thing.name}.${this.getFileExtension()}`
+  }
+
+  currentSprite() {
+    return this.state ? this.sprites[this.state] : null
+  } 
+
+  setState(newState) {
+    if (this.sprites) {
+      for(let state in this.sprites) {
+        this.sprites[state].visible = false;
+      }
+
+      this.state = newState;
+      this.sprites[this.state].visible = true;
+      this.sprites[this.state].play();
+    }
+  }
+
+  setPosition(position) {
+    for(let state in this.sprites) {
+      this.sprites[state].position.set(position.x, position.y)
+    }
+  }
+
+  setScale(scale) {
+    for(let state in this.sprites) {
+      this.sprites[state].scale.set(scale)
+    }
+  }
+
+  setNameText(sprite) {
+    let style = {
+      fontFamily : 'Arial',
+      fontSize: 15,
+      fill : 0xffffff,
+      align : 'center'
+    };
+
+    let nameText = new this.renderer.Text(this.thing.name, style);
+
+    nameText.scale.set(1 / this.thing.scale);
+    
+    setTimeout(() => {
+      nameText.position.set(sprite.width, -40)
+      sprite.addChild(nameText);
+    }, 300)
+  }
+
+  getCurrentSprite() {
+    if (this.thing.states) {
+      let [state, index] = [this.thing.state, this.thing.currentAnimationStep];
+      return this.images[state][index]
+    } else {
+      return this.image
+    }
+  }
+
+  setCurrentSprite() {
+    if (false && this.thing.states) {
+      let [state, index] = [this.thing.state, this.thing.currentAnimationStep]
+      this.sprite.texture = this.renderer.textureCache[this.getSpriteImage(state, index)]
+    }
+  }
+
+  getFileExtension() {
+    return this.thing.extension ? this.thing.extension : 'png';
+  }
+
+  getAnimationSpeed() {
+    return {
+      fastest: 1.5,
+      faster: 1,
+      fast: 0.5,
+      medium: 0.2,
+      slow: 0.1
+    }[this.thing.animationSpeed]
+  }
+
+  destroySprites() {
+    this.thing.stateNames().forEach((state) => {
+      this.renderer.stage.removeChild(this.sprites[state])
+    })
   }
 
   static avatarSteps(type) {
     return {
-      robot: {
-        idle: 5,    
-        go: 5,
-        die: 9,
-        build: 7,
-        appear: 9
-      },
-      stone_robot: {
-        appear: 15,
-        build: 6,
-        die: 7,
-        go: 6,
-        idle: 6
-      },
       zombie: {
         appear: 11,
         build: 7,
@@ -131,5 +231,43 @@ export class SpriteSet {
       },
 
     }[type]
+  }
+}
+
+export class SpritesCollection {
+  constructor(renderer) {
+    this.renderer = renderer;
+    this.names = [];
+    this.textureSets = {};
+  }
+
+  add(set, imagePaths) {
+    return new Promise((resolve, reject) => {
+      let pathName = set.thing.getFolder();
+      
+      if (this.contains(set)){
+        resolve(this.textureSets[pathName])
+      } else {
+        this.names.push(pathName);
+        this.addTextures(pathName, imagePaths).then(() => resolve(this.textureSets[pathName]))
+      }
+    })
+  }
+
+  addTextures(pathName, imagePaths) {
+    return new Promise((resolve,reject) => {
+      this.textureSets[pathName] = [];
+
+      imagePaths.forEach((path) => {
+        let texture = this.renderer.Texture.from(path);
+        this.textureSets[pathName].push(texture)
+      })
+
+      resolve()
+    })
+  }
+
+  contains(set) {
+    return this.names.includes(set.thing.getFolder())
   }
 }

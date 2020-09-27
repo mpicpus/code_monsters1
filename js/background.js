@@ -1,36 +1,18 @@
-export class Background {
-  constructor(images, move, interact, canvasSize) {
-    this.images = images || [];
-    this.move = move || function() {};
-    this.interact = interact || function() {};
-  }
+import { Thing, Things } from './thing.js'
 
-  addImage(image) {
-    this.images.push(image)
-  }
+export class Background extends Things {
+  constructor(attrs = {}) {
+    super(attrs);
 
-  removeImage(image) {
-    delete(this.images[this.images.indexOf(image)]);
-    this.images = this.images.filter(i => i);
+    this.move = () => {};
+    this.interact = () => {};
   }
 }
 
-export class BackgroundImage {
-  constructor(name, level, background, move, position, folder) {
-    this.position = position || {x: 0, y: 0}
-    this.background = background || {};
-    this.name = name;
-    this.folder = folder || '';
-    this.folder = folder;
-    this.level = level || 0;
-    this.move = move || function() {};
-  }
+export class BackgroundElement extends Thing {
+  constructor(attrs = {}) {
+    super(attrs);
 
-  draw(ctx) {
-    ctx.drawImage(this.image, this.position.x, this.position.y, this.width, this.height);
-  }
-
-  getImage() {
-
+    this.level = 0;
   }
 }

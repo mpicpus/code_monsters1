@@ -13,9 +13,9 @@ html, body {
 
 #canvas {
   background-color: #333;
-  background-image: url(./assets/bg01.jpg);
-  background-size: cover;
-  background-position: bottom;
+  /*background-image: url(./assets/bg01.jpg);*/
+  /*background-size: cover;*/
+  /*background-position: bottom;*/
 }
 
 #work-place {
