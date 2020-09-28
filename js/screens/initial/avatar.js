@@ -77,6 +77,7 @@ export class PvzZombie extends BadGuys {
 
     attrs.animationSpeed = 'medium';
     attrs.defaultState = 'go';
+    attrs.strength = 5;
     super(attrs);
     this.displaysName = false;
   }
@@ -99,6 +100,7 @@ export class Zombie extends BadGuys {
 
     attrs.animationSpeed = 'medium';
     attrs.defaultState = 'appear';
+    attrs.strength = 10;
     super(attrs);
     this.displaysName = false;
   }

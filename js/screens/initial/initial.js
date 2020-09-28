@@ -54,9 +54,16 @@ export class ScreenInitial extends Screen {
   }
 
   generateRandomZombie() {
+    let zombieTypes = {
+      1: 'zombie',
+      2: 'zombiepvz'
+    }
+
     let randomWait = Math.random() * 3000 + 50;
     setTimeout(() => {
-      this.instructions.zombie();
+      let selectedZombieType = zombieTypes[Math.floor(Math.random() * 2 + 1)];
+      console.log(selectedZombieType);
+      this.instructions[selectedZombieType]();
       this.generateRandomZombie();
     }, randomWait)
   }
