@@ -3,12 +3,17 @@ import * as AvatarBasicMod from '../../avatar.js';
 import * as AvatarMod from './avatar.js';
 import * as BgMod from '../../background.js';
 import * as InstructMod from '../../instructions.js';
+import { Randomizer } from '/js/tools/randomizer.js';
 
+// Note: super() calls initializeBackground and initializeThings.
+// Any object declared "after" super will NOT be available in the intializers yet.
 export class ScreenInitial extends Screen {
   constructor(attrs) {
     attrs = attrs || {};
     super(attrs);
-    
+  }
+
+  beforeInitialize() {
     this.instructions = new InstructionsEngineInitial({screen: this});
   }
 
@@ -36,69 +41,40 @@ export class ScreenInitial extends Screen {
       scale: .5
     };
 
-    // let times = new Array(1).fill(null)
-    // times.forEach((t) => this.things.add(new AvatarMod.PeaCannon(firstThingAttrs)))
     this.things.createAndAdd(AvatarMod.PeaCannon, attrs);
 
-    attrs = {
-      name: 'zom1',
-      position: {x: this.canvas.canvasSize.x * 0.8, y: this.canvas.canvasSize.y * 0.70},
-      dimensions: {height: 150},
-      scale: 1
-    };
-
-    this.things.createAndAdd(AvatarMod.PvzZombie, attrs);
-
     // Zombie apocalypse:
-    this.generateRandomZombie();
-  }
-
-  generateRandomZombie() {
-    let zombieTypes = {
-      1: 'zombie',
-      2: 'zombiepvz'
-    }
-
-    let randomWait = Math.random() * 3000 + 50;
-    setTimeout(() => {
-      let selectedZombieType = zombieTypes[Math.floor(Math.random() * 2 + 1)];
-      console.log(selectedZombieType);
-      this.instructions[selectedZombieType]();
-      this.generateRandomZombie();
-    }, randomWait)
-  }
-
-  // Main game loop, called for each graphic render.
-  gameLoop() {
-    this.things.move();
-    this.manageProjectiles()
-  }
-
-  manageProjectiles() {
-    let projectiles = this.things.projectile;
-
-    if (projectiles) {
-      projectiles.forEach((projectile) => {
-        let thing = projectile.hitThing();
-        if (thing) {
-          thing.takeDamage(projectile.damage);
-          this.things.remove(projectile);
-        }
-      })
-    }
+    this.instructions.attack();
   }
 }
 
-export class InstructionsEngineInitial extends InstructMod.InstructionsEngine {
+class InstructionsEngineInitial extends InstructMod.InstructionsEngine {
   constructor(attrs) {
     attrs = attrs || {};
     super(attrs);
   }
 
+  attack() {
+    if (!this.enemyGenerator)
+      this.enemyGenerator = new Randomizer.generator({
+        source: this,
+        generators: ['zombie', 'zombiepvz', 'zombiepvz2'],
+        intervalRange: {min: 150, max: 4000}
+      })
+
+    this.enemyGenerator.start();
+  }
+
+  truce() {
+    if (!this.enemyGenerator || this.enemyGenerator.state != 'active') return;
+
+    this.enemyGenerator.stop();
+  }
+
   zombiepvz() {
     let attrs = {
       name: 'zom1',
-      position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.70},
+      position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.65},
       dimensions: {height: 150},
       scale: 1
     };
@@ -108,15 +84,42 @@ export class InstructionsEngineInitial extends InstructMod.InstructionsEngine {
       this.screen.things.pea_cannon[0].startCannon()
   }
 
+  zombiepvz2() {
+    let attrs = {
+      name: 'zom1',
+      position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.45},
+      dimensions: {height: 150},
+      scale: 1.8
+    };
+
+    this.screen.things.createAndAdd(AvatarMod.PvzZombie2, attrs);
+    if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
+      this.screen.things.pea_cannon[0].startCannon()
+  }
+
   zombie() {
     let attrs = {
       name: 'zom1',
-      position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.70},
+      position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.65},
       dimensions: {height: 150},
       scale: .85
     };
 
     this.screen.things.createAndAdd(AvatarMod.Zombie, attrs);
+    if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
+      this.screen.things.pea_cannon[0].startCannon()
+  }
+
+  dragon1() {
+    let attrs = {
+      name: 'zom1',
+      position: {x: this.screen.canvas.canvasSize.x * 1, y: this.screen.canvas.canvasSize.y * 0.50},
+      dimensions: {height: 150},
+      scale: [-1, 1]
+    };
+
+    this.screen.things.createAndAdd(AvatarMod.Dragon1, attrs);
+    // this.setPosition({x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.50})
     if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
       this.screen.things.pea_cannon[0].startCannon()
   }

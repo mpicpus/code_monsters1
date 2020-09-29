@@ -86,7 +86,10 @@ export class SpriteSet {
 
   setScale(scale) {
     for(let state in this.sprites) {
-      this.sprites[state].scale.set(scale)
+      if (Array.isArray(scale))
+        this.sprites[state].scale.set(...scale);
+      else
+        this.sprites[state].scale.set(scale);
     }
   }
 

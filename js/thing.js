@@ -1,4 +1,3 @@
-import { Asset } from './asset.js';
 import { ActionQueue } from './action-queue.js';
 import { SpriteSet } from './sprite-set.js';
 import { InstructionSet } from './instructions.js'
@@ -63,7 +62,6 @@ export class Thing {
   initialize() {
     this.family = this.family || this.getFamily();
     this.sprites = new SpriteSet(this);
-    this.instructionSet = this.instructionSet || new InstructionSet({thing: this, addBasicSet: true})
   }
 
   onImageLoad() {
@@ -112,7 +110,7 @@ export class Thing {
   }
 
   width() {
-    return this.sprites.sprite.width / img.height * this.dimensions.height;
+    return this.currentSprite().width
   }
 
   currentSprite() {
@@ -136,10 +134,6 @@ export class Thing {
     } else {
       imagePaths = [this.getSpriteImage()];
     }
-  }
-
-  getSpriteImage(state, index) {
-    return `assets/screens/${this.getFolder()}/${state ? state + '/' + index : this.name}.${this.getFileExtension()}`
   }
 
   // Family utils
@@ -182,6 +176,9 @@ export class Thing {
   }
 }
 
+
+
+// Things collection.
 export class Things {
   constructor({
     screen = {},
@@ -196,10 +193,11 @@ export class Things {
 
     this.families = [];
 
-    this.spriteInterval = setInterval(() => {this.updateSpriteSteps()}, 150);
-
-    // Poses as callable attributes for the filtering of specific thing types, when present:
-    // e.g. "this.things.robots" will return the collection of all 'robot' type things.
+    // Configures callable attributes for direct filtering of specific thing types, when present:
+    // e.g. "this.robot" will return a collection of all 'robot' class things.
+    // Accepts any "underscore" version of class name (StoneRobot => stone_robot).
+    //
+    // Returns an empty array if no type or method are defined (will throw potential errors in the console).
     const filteringProxy = new Proxy(this, {
       get: function(things, prop, value) {
         if (things.families.includes(prop))
@@ -227,7 +225,7 @@ export class Things {
     attrs.wrapper = this;
     attrs.screen = this.screen;
 
-    try{
+    try {
       thing = new thingClass(attrs);
     } catch(e) {
       console.log(e);
@@ -262,26 +260,20 @@ export class Things {
 
   // Memory efficient:
   removeThing(thing) {
-    // sets the element to 'null' => unreferenced objects will, theoretically, be erased from memory in the next cycle.
     thing.sprites.destroySprites();
+
+    // Sets the element to 'null' => unreferenced objects will, theoretically, be erased from memory in the next cycle.
     delete(this.collection[this.collection.indexOf(thing)]);
-    // removes 'null' elements from the collection.
+
+    // Removes 'null' elements from the collection.
     this.collection = this.collection.filter(thing => thing);
   }
 
-  updateSpriteSteps(animationSpeed) {
-    this.collection.filter((thing) => thing.animationSpeed == animationSpeed).forEach((thing) => thing.updateSpriteSteps());
-  }
-
-  draw() {
-    this.collection.forEach((thing) => {thing.draw()})
-  }
-
   isOutOfTheCanvas(thing) {
-    return thing.position.x < 0 ||
-      thing.position.x > this.screen.canvas.canvasSize.x ||
-      thing.position.y < 0 ||
-      thing.position.y > this.screen.canvas.canvasSize.y
+    return (thing.speed.x < 0 && thing.position.x < 0) ||
+      (thing.speed > 0 && thing.position.x > this.screen.canvas.canvasSize.x) ||
+      (thing.speed.y < 0 && thing.position.y < 0) ||
+      (thing.speed.y > 0 && thing.position.y > this.screen.canvas.canvasSize.y)
   }
 
   rogueThings() {
@@ -298,10 +290,25 @@ export class Things {
   move() {
     this.movingThings().forEach(thing => thing.move());
     this.removeRogues();
+    this.manageProjectiles()
   }
 
   removeRogues() {
     this.rogueThings().forEach(thing => this.remove(thing));
+  }
+
+  manageProjectiles() {
+    let projectiles = this.projectile;
+
+    if (projectiles) {
+      projectiles.forEach((projectile) => {
+        let thing = projectile.hitThing();
+        if (thing) {
+          thing.takeDamage(projectile.damage);
+          this.remove(projectile);
+        }
+      })
+    }
   }
 }
 

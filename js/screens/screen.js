@@ -28,8 +28,9 @@ export class Screen {
     this.spritesCollection = new SpritesCollection(this.renderer);
     this.things = new Things({name: this.name, screen: this});
 
-    // this.initializeSpriteLoops()
-    this.initialize()
+    this.beforeInitialize();
+    this.initialize();
+    this.afterInitialize()
   }
 
   initialize() {
@@ -39,25 +40,21 @@ export class Screen {
     this.renderer.gameLoop = this.gameLoop
   }
 
-  initializeBackground() {} // Define in subclass.
-
-  initializeThings() {} // Define in subclass.
-
   familyName() {
     return this.constructor.name.replace(/screen/gi, '').toLowerCase()
   }
 
-  gameLoop() {} // Define in subclass.
-
-  static loopSpeeds() {
-    return {
-      slow: 250,
-      medium: 150,
-      fast: 70,
-      faster: 50,
-      fastest: 35
-    }
+  // Main game loop, called for each graphic render.
+  // Redefine in subclass if needed.
+  gameLoop() {
+    this.things.move();
   }
+
+  beforeInitialize() {} // Define in subclass.
+  afterInitialize() {} // Define in subclass.
+  initializeBackground() {} // Define in subclass.
+  initializeThings() {} // Define in subclass.
+
 
   // Imports arbitrary Screen modules.
   // Screen modules just need to be created inside /js/screens/screen-module-name/screen-module-name.js

@@ -88,6 +88,26 @@ export class PvzZombie extends BadGuys {
   }
 }
 
+export class PvzZombie2 extends BadGuys {
+  constructor(attrs = {}) {
+    attrs.states = {
+      idle: { steps: 38, loop: true },
+      go: { steps: 38, loop: true }
+    }
+
+    attrs.animationSpeed = 'medium';
+    attrs.defaultState = 'go';
+    attrs.strength = 5;
+    super(attrs);
+    this.displaysName = false;
+  }
+
+  move() {
+    this.position.x -= 0.5;
+    this.setPosition();
+  }
+}
+
 export class Zombie extends BadGuys {
   constructor(attrs) {
     attrs.states = {
@@ -127,5 +147,26 @@ export class Zombie extends BadGuys {
 
   die() {
     this.setState('die')
+  }
+}
+
+export class Dragon1 extends BadGuys {
+  constructor(attrs) {
+    attrs.states = {
+      go: { steps:40 },
+      idle: { steps: 40 }
+    }
+
+    attrs.animationSpeed = 'fast';
+    attrs.defaultState = 'go';
+    attrs.strength = 1000;
+    super(attrs);
+    this.displaysName = false;
+  }
+
+  move() {
+    this.position.x -= 0.5;
+    this.setPosition();
+    console.log(this.position.x);
   }
 }
