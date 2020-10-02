@@ -22,7 +22,7 @@ export class Thing {
     dimensions = {width: 100, height: 100},
     scale = 1,
     position = {x: 0, y: 0},
-    speed = {default: 5},
+    speed = {x: 0, y: 0, default: {x: 5, y: 0}},
     direction = 0,
     instructionSet = null, // new InstructionsSet(),
     states = null,
@@ -260,6 +260,7 @@ export class Things {
 
   // Memory efficient:
   removeThing(thing) {
+    console.log(`removing ${thing.family.pop()}`)
     thing.sprites.destroySprites();
 
     // Sets the element to 'null' => unreferenced objects will, theoretically, be erased from memory in the next cycle.
@@ -271,7 +272,7 @@ export class Things {
 
   isOutOfTheCanvas(thing) {
     return (thing.speed.x < 0 && thing.position.x < 0) ||
-      (thing.speed > 0 && thing.position.x > this.screen.canvas.canvasSize.x) ||
+      (thing.speed.x > 0 && thing.position.x > this.screen.canvas.canvasSize.x) ||
       (thing.speed.y < 0 && thing.position.y < 0) ||
       (thing.speed.y > 0 && thing.position.y > this.screen.canvas.canvasSize.y)
   }

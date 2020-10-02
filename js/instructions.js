@@ -121,6 +121,3 @@ class BasicMovementSet extends InstructionsModule {
     this.thing.stop();
   }
 }
-
-window.instructionSet = InstructionSet;
-window.basicSet = BasicMovementSet; 

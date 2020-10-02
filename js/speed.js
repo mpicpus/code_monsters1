@@ -1,6 +1,6 @@
 export class Speed {
   constructor({
-    currentSpeed = 0,
+    currentSpeed = {x: 0, y: 0},
     targetSpeed = null
   } = {}) {
     this.currentSpeed = parseFloat(currentSpeed) || 0;
@@ -18,11 +18,14 @@ export class Speed {
   }
 
   setSpeed(speed) {
-    this.currentSpeed = parseFloat(speed);
-    this.originalSpeed = parseFloat(speed);
+    speed = speed || {x: 0, y: 0};
+    this.currentSpeed.x = parseFloat(speed.x);
+    this.currentSpeed.y = parseFloat(speed.y);
+    this.originalSpeed = this.currentSpeed;
   }
 
   setTarget(speed) {
+    speed = speed || {x: 0, y: 0};
     this.targetSpeed = parseFloat(speed);
     if (this.currentSpeed > 0 && this.targetSpeed >  0)
       this.originalSpeed = this.currentSpeed;

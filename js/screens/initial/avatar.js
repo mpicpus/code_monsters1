@@ -153,13 +153,34 @@ export class Zombie extends BadGuys {
 export class Dragon1 extends BadGuys {
   constructor(attrs) {
     attrs.states = {
-      go: { steps:40 },
+      go: { steps: 40 },
       idle: { steps: 40 }
     }
 
     attrs.animationSpeed = 'fast';
     attrs.defaultState = 'go';
-    attrs.strength = 1000;
+    attrs.strength = 20;
+    super(attrs);
+    this.displaysName = false;
+  }
+
+  move() {
+    this.position.x -= 0.5;
+    this.setPosition();
+    console.log(this.position.x);
+  }
+}
+
+export class Dragon7 extends BadGuys {
+  constructor(attrs) {
+    attrs.states = {
+      go: { steps: 9 },
+      idle: { steps: 9 }
+    }
+
+    attrs.animationSpeed = 'medium';
+    attrs.defaultState = 'go';
+    attrs.strength = 20;
     super(attrs);
     this.displaysName = false;
   }
