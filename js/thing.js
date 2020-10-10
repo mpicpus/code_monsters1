@@ -78,6 +78,10 @@ export class Thing {
     return {}
   }
 
+  onStateLoop() {
+    return {}
+  }
+
   destroy() {
     this.screen.things.remove(this);
   }
@@ -102,6 +106,10 @@ export class Thing {
     scale = scale || this.scale;
     this.scale = scale;
     this.sprites.setScale(scale)
+  }
+
+  setAnimationSpeed(speed) {
+    this.sprites.setAnimationSpeed(speed)
   }
 
   parseInstructions(instructions) {
@@ -260,7 +268,6 @@ export class Things {
 
   // Memory efficient:
   removeThing(thing) {
-    console.log(`removing ${thing.family.pop()}`)
     thing.sprites.destroySprites();
 
     // Sets the element to 'null' => unreferenced objects will, theoretically, be erased from memory in the next cycle.

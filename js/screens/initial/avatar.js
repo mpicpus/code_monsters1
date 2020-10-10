@@ -18,7 +18,8 @@ export class GoodGuys extends Avatar {
 export class PeaCannon extends GoodGuys {
   constructor(attrs = {}) {
     attrs.states = {
-      idle: { steps: 60, loop: true }
+      idle: { steps: 60, loop: true },
+      attack: { steps: 60, loop: true }
     },
 
     attrs.animationSpeed = 'faster';
@@ -30,28 +31,38 @@ export class PeaCannon extends GoodGuys {
   }
 
   startCannon() {
-    if (this.shotInterval) return;
+    this.setState('attack');
+    // if (this.shotInterval) return;
     
-    this.shotInterval = setInterval(() => { this.throw() }, this.shotSpan);
+    // this.shotInterval = setInterval(() => { this.throw() }, this.shotSpan);
   }
 
   stopCannon() {
-    if (!this.shotInterval) return;
+    this.setState('idle');
+    // if (!this.shotInterval) return;
 
-    clearInterval(this.shotInterval);
-    this.shotInterval = null;
+    // clearInterval(this.shotInterval);
+    // this.shotInterval = null;
   }
 
   setTurboMode() {
-    this.stopCannon();
-    this.shotSpan = 50;
-    this.startCannon();
+    this.setAnimationSpeed('turboCrazy')
+    // this.stopCannon();
+    // this.shotSpan = 50;
+    // this.startCannon();
   }
 
   removeTurboMode() {
-    this.stopCannon();
-    this.shotSpan = 800;
-    this.startCannon();
+    this.setAnimationSpeed(this.animationSpeed)
+    // this.stopCannon();
+    // this.shotSpan = 800;
+    // this.startCannon();
+  }
+
+  onStateLoop() {
+    return {
+      attack: () => { this.throw() }
+    }
   }
 
   throw() {
@@ -167,7 +178,6 @@ export class Dragon1 extends BadGuys {
   move() {
     this.position.x -= 0.5;
     this.setPosition();
-    console.log(this.position.x);
   }
 }
 
@@ -188,6 +198,5 @@ export class Dragon7 extends BadGuys {
   move() {
     this.position.x -= 0.5;
     this.setPosition();
-    console.log(this.position.x);
   }
 }

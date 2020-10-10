@@ -1,9 +1,10 @@
 export class Speed {
   constructor({
     currentSpeed = {x: 0, y: 0},
-    targetSpeed = null
+    targetSpeed = null,
+    cruiseSpeed = {x: 0, y: 0}
   } = {}) {
-    this.currentSpeed = parseFloat(currentSpeed) || 0;
+    this.currentSpeed = setSpeed(currentSpeed) || {x: 0, y: 0};
     this.targetSpeed = targetSpeed != null && typeof(parseFloat(targetSpeed)) == 'number' ? parseFloat(targetSpeed) : null;
     this.originalSpeed = this.currentSpeed;
   }
@@ -35,9 +36,18 @@ export class Speed {
     this.targetSpeed = this.originalSpeed;
   }
 
-  normalizeValues() {
+  resetValues() {
     this.currentSpeed = Math.round(this.currentSpeed);
     this.targetSpeed = null;
+  }
+
+  round(speed) {
+    speed = speed || {x: 0, y: 0}
+  }
+
+  roundNum(num) {
+    num = parseFloat(num);
+    return Math.round(num)
   }
 
   isZero() {

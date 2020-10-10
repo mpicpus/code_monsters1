@@ -37,6 +37,7 @@ export class SpriteSet {
             let sprite = new this.renderer.AnimatedSprite(stateTextures);
             sprite.loop = this.thing.states[state].loop === false ? false : true;
             sprite.onComplete = this.thing.onStateComplete()[state];
+            sprite.onLoop = this.thing.onStateLoop()[state];
             sprite.animationSpeed = this.getAnimationSpeed();
 
             this.sprites[state] = sprite;
@@ -93,6 +94,12 @@ export class SpriteSet {
     }
   }
 
+  setAnimationSpeed(speed) {
+    for(let state in this.sprites) {
+      this.sprites[state].animationSpeed = this.getAnimationSpeed(speed)
+    }
+  }
+
   setNameText(sprite) {
     let style = {
       fontFamily : 'Arial',
@@ -131,14 +138,17 @@ export class SpriteSet {
     return this.thing.extension ? this.thing.extension : 'png';
   }
 
-  getAnimationSpeed() {
+  getAnimationSpeed(speed) {
     return {
+      turboCrazy: 20,
+      turbo: 5,
+      crazy: 2.5,
       fastest: 1.5,
       faster: 1,
       fast: 0.5,
       medium: 0.2,
       slow: 0.1
-    }[this.thing.animationSpeed]
+    }[speed || this.thing.animationSpeed]
   }
 
   destroySprites() {
