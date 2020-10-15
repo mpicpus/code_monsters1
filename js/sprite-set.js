@@ -37,7 +37,8 @@ export class SpriteSet {
             let sprite = new this.renderer.AnimatedSprite(stateTextures);
             sprite.loop = this.thing.states[state].loop === false ? false : true;
             sprite.onComplete = this.thing.onStateComplete()[state];
-            sprite.onLoop = this.thing.onStateLoop()[state];
+            sprite.onLoop = () => { this.onLoop() };
+            sprite.onFrameChange = (frameNum) => { this.onFrameChange(frameNum) }
             sprite.animationSpeed = this.getAnimationSpeed();
 
             this.sprites[state] = sprite;
@@ -66,6 +67,29 @@ export class SpriteSet {
   currentSprite() {
     return this.state ? this.sprites[this.state] : null
   } 
+
+  onLoop() {
+    this.thing.frameEventTriggered = false;
+    this.thing.onStateLoop()[this.state]
+  }
+
+  onFrameChange(frameNum) {
+    // if (this.thing.name == 'matt' && this.thing.frameEventTriggered == true) debugger;
+    if (this.thing.frameEventTriggered) return;
+
+    let stateActions = this.thing.onStateFrame()[this.state];
+    let keys = stateActions && Object.keys(stateActions);
+
+    if (!keys) return;
+
+    let key = keys.find(k => Math.abs(k - frameNum) < 5);
+
+    if (key) {
+      this.thing.frameEventTriggered = true;
+      stateActions[key]();
+      if (this.thing.name == 'matt') console.log(key, frameNum);
+    }
+  }
 
   setState(newState) {
     if (this.sprites) {

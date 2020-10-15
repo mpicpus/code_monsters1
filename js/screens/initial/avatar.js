@@ -26,42 +26,30 @@ export class PeaCannon extends GoodGuys {
 
     super(attrs);
     this.shotSpan = 800;
-    this.throw();
-    this.startCannon();
+    this.attack();
   }
 
-  startCannon() {
+  attack() {
     this.setState('attack');
-    // if (this.shotInterval) return;
-    
-    // this.shotInterval = setInterval(() => { this.throw() }, this.shotSpan);
   }
 
-  stopCannon() {
+  rest() {
     this.setState('idle');
-    // if (!this.shotInterval) return;
-
-    // clearInterval(this.shotInterval);
-    // this.shotInterval = null;
   }
 
   setTurboMode() {
     this.setAnimationSpeed('turboCrazy')
-    // this.stopCannon();
-    // this.shotSpan = 50;
-    // this.startCannon();
   }
 
   removeTurboMode() {
     this.setAnimationSpeed(this.animationSpeed)
-    // this.stopCannon();
-    // this.shotSpan = 800;
-    // this.startCannon();
   }
 
-  onStateLoop() {
+  onStateFrame() {
     return {
-      attack: () => { this.throw() }
+      attack: {
+        37: () => { this.throw() }
+      }
     }
   }
 
@@ -75,7 +63,7 @@ export class PeaCannon extends GoodGuys {
 
     this.screen.things.createAndAdd(ProjectileMod.Pea, {position: position, screen: this.screen})
 
-    if (!this.screen.things.bad_guys || this.screen.things.bad_guys.length == 0) this.stopCannon();
+    if (!this.screen.things.bad_guys || this.screen.things.bad_guys.length == 0) this.rest();
   }
 }
 

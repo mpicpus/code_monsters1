@@ -82,6 +82,10 @@ export class Thing {
     return {}
   }
 
+  onStateFrame() {
+    return {}
+  }
+
   destroy() {
     this.screen.things.remove(this);
   }

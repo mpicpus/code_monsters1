@@ -36,7 +36,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
 
     this.screen.things.createAndAdd(AvatarMod.PvzZombie, attrs);
     if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
-      this.screen.things.pea_cannon[0].startCannon()
+      this.screen.things.pea_cannon[0].attack()
   }
 
   zombiepvz2() {
@@ -49,7 +49,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
 
     this.screen.things.createAndAdd(AvatarMod.PvzZombie2, attrs);
     if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
-      this.screen.things.pea_cannon[0].startCannon()
+      this.screen.things.pea_cannon[0].attack()
   }
 
   zombie() {
@@ -62,7 +62,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
 
     this.screen.things.createAndAdd(AvatarMod.Zombie, attrs);
     if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
-      this.screen.things.pea_cannon[0].startCannon()
+      this.screen.things.pea_cannon[0].attack()
   }
 
   dragon1() {
@@ -76,7 +76,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
     this.screen.things.createAndAdd(AvatarMod.Dragon1, attrs);
     // this.setPosition({x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.50})
     if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
-      this.screen.things.pea_cannon[0].startCannon()
+      this.screen.things.pea_cannon[0].attack()
   }
 
     dragon7() {
@@ -90,7 +90,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
     this.screen.things.createAndAdd(AvatarMod.Dragon7, attrs);
     // this.setPosition({x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.50})
     if (this.screen.things.pea_cannon && this.screen.things.pea_cannon.length > 0)
-      this.screen.things.pea_cannon[0].startCannon()
+      this.screen.things.pea_cannon[0].attack()
   }
 
   peacannon() {
