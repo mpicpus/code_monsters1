@@ -41,6 +41,9 @@ export class InstructionsEngine {
   }
 
   normalize(instructions) {
+    if (typeof(instructions) == 'object')
+      return instructions;
+
     return instructions.replace(/^ +| +$/g, '').replace(/( ) +/, ' ')
   }
 
@@ -62,6 +65,12 @@ export class InstructionsEngine {
   go() {
     this.screen.renderer.go()
   }
+
+  app(commands) {
+    if (!window.app) return;
+
+    window.app.instructions.parse(commands)
+  }
 }
 
 // Engine for Things class.
@@ -77,8 +86,16 @@ export class InstructionSet {
     this.addModules()
   }
 
-  parse(instructions) {
-    console.log(`${this.thing.name} received: "${instructions.join(' ')}"`)
+  parse(commands) {
+    console.log(`${this.thing.getName()} received: "${commands.join(' ')}"`);
+
+    let command = commands.shift();
+
+    try {
+      this[command](commands.join(' '))
+    } catch(e) {
+      console.error(e)
+    }
   } 
 
   addModule(moduleName) {

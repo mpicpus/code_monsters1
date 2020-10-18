@@ -14,8 +14,9 @@ import { InstructionSet } from './instructions.js'
 // otherwise an empty object would be required (ugly!).
 export class Thing {
   constructor({
-    name = 'unnamed',
-    displaysName = false,
+    name = '',
+    displayName ='',
+    showName = false,
     family = null,
     screen = {},
     wrapper = null,
@@ -35,7 +36,8 @@ export class Thing {
   } = {}) {
     Object.assign(this, {
       name,
-      displaysName,
+      displayName,
+      showName,
       family,
       screen,
       wrapper,
@@ -64,15 +66,21 @@ export class Thing {
     this.sprites = new SpriteSet(this);
   }
 
-  onImageLoad() {
-    this.setState(this.defaultState);
-    this.setPosition();
-    this.setScale();
+  getName() {
+    return !this.name || this.name == '' ? this.underscore(this.constructor.name) : this.name
   }
 
+  onImageLoad() {}
+
   onSpritesLoaded() {
-    this.setState()
+    this.setPosition();
+    this.setScale();
+    this.setState().then(() => this.onLoad());
   }
+
+  onLoad() {}
+
+  onSpriteAdded() {}
 
   onStateComplete() {
     return {}
@@ -95,9 +103,11 @@ export class Thing {
   }
 
   setState(state) {
-    state = state || this.defaultState;
-    this.currentState = state;
-    this.sprites.setState(state)
+    return new Promise((resolve, reject) => {
+      state = state || this.defaultState;
+      this.currentState = state;
+      this.sprites.setState(state).then(resolve);
+    })
   }
 
   setPosition(position = null) {
@@ -129,8 +139,12 @@ export class Thing {
     return this.sprites.currentSprite()
   }
 
+  baseSprite() {
+    return this.sprites.baseSprite()
+  }
+
   getFolder() {
-    return `${this.family.join('/')}`;
+    return `${this.family.join('/')}${this.name != '' && this.states ? '/' + this.name : ''}`;
   }
 
   getFileExtension() {
@@ -148,23 +162,51 @@ export class Thing {
     }
   }
 
-  // Family utils
-  getFamily(family, current) {
-    function underscore(name) {
-      return name.replace(/([A-Z]+)/g, '_$1').toLowerCase().replace(/^_/, '')
-    }
-    
-    family = family || [];
-    current = current || this;
+  // Position utils
+  pivotToCenter() {
+    let sprite = this.currentSprite();
+    let objectCenter = {
+      x: sprite.width / 2,
+      y: sprite.height / 2
+    };
 
-    while(current.name !== '') {
-      let name = current == this ? current.constructor.name : current.name;
-      name = underscore(name);
+    this.sprites.setPivot(objectCenter)
+  }
+
+  moveTo(parameter) {
+    let dimensions = this.screen.canvas.canvasSize;
+    let currentSprite = this.baseSprite();
+
+    let actions = {
+      center: () => {
+        let center = {x: dimensions.x / 2, y: dimensions.y / 2}
+        this.setPosition(center)
+      }
+    };
+
+    try { actions[parameter]() } catch { return null }
+  }
+
+  // Family utils
+  underscore(name) {
+    return name.replace(/([A-Z]+)/g, '_$1').toLowerCase().replace(/^_/, '')
+  }
+
+  getFamily(family, current) {    
+    family = family || [];
+    current = current || {name: this.getName()};
+
+    while(current.name && current.name !== '') {
+      let name = current.name;
+      name = this.underscore(name);
 
       if (!family.includes(name) && name != "thing")
-        family.unshift(underscore(name));
-      
-      current = Object.getPrototypeOf(current == this ? current.constructor : current)
+        family.unshift(name);
+
+      if (current.name == this.getName() && name != this.underscore(this.constructor.name))
+        family.unshift(this.underscore(this.constructor.name));
+
+      current = Object.getPrototypeOf(current.name == this.getName() ? this.constructor : current)
 
       this.getFamily(family, current)
     }
@@ -209,7 +251,7 @@ export class Things {
     // e.g. "this.robot" will return a collection of all 'robot' class things.
     // Accepts any "underscore" version of class name (StoneRobot => stone_robot).
     //
-    // Returns an empty array if no type or method are defined (will throw potential errors in the console).
+    // Returns an empty array if no type or method are defined.
     const filteringProxy = new Proxy(this, {
       get: function(things, prop, value) {
         if (things.families.includes(prop))
@@ -240,18 +282,18 @@ export class Things {
     try {
       thing = new thingClass(attrs);
     } catch(e) {
-      console.log(e);
-      return
+      console.error(e);
+      return null
     }
 
-    this.add(thing);
+    return this.add(thing);
   }
 
   add(thingOrThings) {
     if (Array.isArray(thingOrThings)) {
-      thingOrThings.forEach(thing => this.addThing(thing))
+      return thingOrThings.map(thing => this.addThing(thing))
     } else {
-      this.addThing(thingOrThings)
+      return this.addThing(thingOrThings)
     }
   }
 
@@ -260,6 +302,7 @@ export class Things {
     thing.screen = this.screen;
     this.collection.push(thing);
     this.families = this.families.concat(thing.family.filter(f => !this.families.includes(f)));
+    return thing
   }
 
   remove(thingOrThings) {

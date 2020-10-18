@@ -28,7 +28,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
 
   zombiepvz() {
     let attrs = {
-      name: 'zom1',
+      displayName: 'zom1',
       position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.65},
       dimensions: {height: 150},
       scale: 1
@@ -41,7 +41,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
 
   zombiepvz2() {
     let attrs = {
-      name: 'zom1',
+      displayName: 'zom1',
       position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.45},
       dimensions: {height: 150},
       scale: 1.8
@@ -54,7 +54,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
 
   zombie() {
     let attrs = {
-      name: 'zom1',
+      displayName: 'zom1',
       position: {x: this.screen.canvas.canvasSize.x * 0.8, y: this.screen.canvas.canvasSize.y * 0.65},
       dimensions: {height: 150},
       scale: .85
@@ -67,7 +67,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
 
   dragon1() {
     let attrs = {
-      name: 'zom1',
+      displayName: 'zom1',
       position: {x: this.screen.canvas.canvasSize.x * 1.5, y: this.screen.canvas.canvasSize.y * 0.40},
       dimensions: {height: 150},
       scale: [-1, 1]
@@ -81,7 +81,7 @@ export class InstructionsEngineInitial extends InstructionsEngine {
 
     dragon7() {
     let attrs = {
-      name: 'zom1',
+      displayName: 'zom1',
       position: {x: this.screen.canvas.canvasSize.x * 1.1, y: this.screen.canvas.canvasSize.y * 0.40},
       dimensions: {height: 150},
       scale: [-1, 1]

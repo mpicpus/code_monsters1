@@ -37,13 +37,14 @@ export class SpriteSet {
             let sprite = new this.renderer.AnimatedSprite(stateTextures);
             sprite.loop = this.thing.states[state].loop === false ? false : true;
             sprite.onComplete = this.thing.onStateComplete()[state];
-            sprite.onLoop = () => { this.onLoop() };
+            sprite.onLoop = () => this.onLoop();
             sprite.onFrameChange = (frameNum) => { this.onFrameChange(frameNum) }
+            sprite.added = () => this.thing.onSpriteAdded();
             sprite.animationSpeed = this.getAnimationSpeed();
 
             this.sprites[state] = sprite;
 
-            if (this.thing.displaysName)
+            if (this.thing.showName)
               this.setNameText(this.sprites[state]);
             
             this.renderer.stage.addChild(this.sprites[state]);
@@ -61,12 +62,16 @@ export class SpriteSet {
   }
 
   getSpriteImage(state, index) {
-    return `assets/screens/${this.thing.getFolder()}/${state ? state + '/' + index : this.thing.name}.${this.getFileExtension()}`
+    return `assets/screens/${this.thing.getFolder()}${state ? '/' + state + '/' + index : ''}.${this.getFileExtension()}`
   }
 
   currentSprite() {
     return this.state ? this.sprites[this.state] : null
-  } 
+  }
+
+  baseSprite() {
+    return this.sprites['idle']
+  }
 
   onLoop() {
     this.thing.frameEventTriggered = false;
@@ -87,25 +92,33 @@ export class SpriteSet {
     if (key) {
       this.thing.frameEventTriggered = true;
       stateActions[key]();
-      if (this.thing.name == 'matt') console.log(key, frameNum);
     }
   }
 
   setState(newState) {
-    if (this.sprites) {
-      for(let state in this.sprites) {
-        this.sprites[state].visible = false;
-      }
+    return new Promise((resolve, reject) => {
+      if (this.sprites) {
+        for(let state in this.sprites) {
+          this.sprites[state].visible = false;
+        }
 
-      this.state = newState;
-      this.sprites[this.state].visible = true;
-      this.sprites[this.state].play();
-    }
+        this.state = newState;
+        this.sprites[this.state].visible = true;
+        this.sprites[this.state].play();
+        resolve(this.state);
+      }
+    })
   }
 
   setPosition(position) {
     for(let state in this.sprites) {
       this.sprites[state].position.set(position.x, position.y)
+    }
+  }
+
+  setPivot(position) {
+    for(let state in this.sprites) {
+      this.sprites[state].pivot.set(position.x, position.y)
     }
   }
 
@@ -132,7 +145,7 @@ export class SpriteSet {
       align : 'center'
     };
 
-    let nameText = new this.renderer.Text(this.thing.name, style);
+    let nameText = new this.renderer.Text(this.thing.displayName || this.thing.getName(), style);
 
     nameText.scale.set(1 / this.thing.scale);
     

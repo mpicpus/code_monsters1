@@ -40,7 +40,7 @@ export class ScreenInitial extends Screen {
 
   initializeThings() {
     let attrs = {
-      name: 'matt',
+      displayName: 'matt',
       position: {x: this.canvas.canvasSize.x * 0.01, y: this.canvas.canvasSize.y * 0.75},
       dimensions: {height: 150},
       scale: .5

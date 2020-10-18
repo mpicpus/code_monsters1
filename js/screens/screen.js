@@ -41,7 +41,7 @@ export class Screen {
   }
 
   familyName() {
-    return this.constructor.name.replace(/screen/gi, '').toLowerCase()
+    return this.constructor.name.replace('Screen', '').replace(/([A-Z]+)/g, '_$1').toLowerCase().replace(/^_/, '')
   }
 
   // Main game loop, called for each graphic render.
@@ -60,14 +60,18 @@ export class Screen {
   // Screen modules just need to be created inside /js/screens/screen-module-name/screen-module-name.js
   // Accepts initial attrs object.
   static get(name, attrs = {}) {
-    function capitalize(string) {
-      return string.replace(/(^\w{1})/g, match => match.toUpperCase())
+    function toClassName(string) {
+      return string
+              .split('_')
+              .map(i => i.replace(/(^\w{1})/g, match => match.toUpperCase()))
+              .join('');
     }
 
-    let className = `Screen${capitalize(name)}`;
+    let className = `Screen${toClassName(name)}`;
 
     return new Promise((resolve, reject) => {
-      import(`/js/screens/${name}/${name}.js`).then((module) => {
+      let url = `/js/screens/${name}/${name}.js`;
+      import(url).then((module) => {
         if (module && module[className]){
           let instance = new module[className](attrs)
           resolve(instance)
@@ -76,3 +80,5 @@ export class Screen {
     })
   }
 }
+
+window.screen = Screen;

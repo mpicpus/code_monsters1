@@ -78,7 +78,7 @@ export class PvzZombie extends BadGuys {
     attrs.defaultState = 'go';
     attrs.strength = 5;
     super(attrs);
-    this.displaysName = false;
+    this.showName = false;
   }
 
   move() {
@@ -98,7 +98,7 @@ export class PvzZombie2 extends BadGuys {
     attrs.defaultState = 'go';
     attrs.strength = 5;
     super(attrs);
-    this.displaysName = false;
+    this.showName = false;
   }
 
   move() {
@@ -121,7 +121,7 @@ export class Zombie extends BadGuys {
     attrs.defaultState = 'appear';
     attrs.strength = 10;
     super(attrs);
-    this.displaysName = false;
+    this.showName = false;
   }
 
   onStateComplete() {
@@ -160,7 +160,7 @@ export class Dragon1 extends BadGuys {
     attrs.defaultState = 'go';
     attrs.strength = 20;
     super(attrs);
-    this.displaysName = false;
+    this.showName = false;
   }
 
   move() {
@@ -180,7 +180,7 @@ export class Dragon7 extends BadGuys {
     attrs.defaultState = 'go';
     attrs.strength = 20;
     super(attrs);
-    this.displaysName = false;
+    this.showName = false;
   }
 
   move() {

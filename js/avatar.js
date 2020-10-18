@@ -5,7 +5,7 @@ import * as ProjectileMod from './projectile.js';
 
 export class Avatar extends Thing {
   constructor(attrs) {
-    attrs.displaysName = true;
+    attrs.showName = true;
     super(attrs)
   }
 }
