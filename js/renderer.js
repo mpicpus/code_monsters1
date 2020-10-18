@@ -30,6 +30,8 @@ export class Renderer {
     this.AnimatedSprite = PIXI.AnimatedSprite;
     this.Texture = PIXI.Texture;
     this.Text = PIXI.Text;
+    this.utils = PIXI.utils;
+    this.graphics = new PIXI.Graphics();
 
     // Adds game loop function to the main loop.
     this.renderer.ticker.add(delta => this.screen.gameLoop());

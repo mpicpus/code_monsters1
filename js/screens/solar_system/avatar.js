@@ -11,8 +11,9 @@ export class Sun extends Thing {
 
   onLoad() {
     setTimeout(() => {
+      // this.pivotToCenter();
+      this.offsetToCenter();
       this.moveTo('center');
-      this.pivotToCenter()
     }, 200)
   }
 }
@@ -23,24 +24,30 @@ class Planet extends Thing {
     centerObject: {
       position: {x: 0, y: 0}
     },
-    angle: 0
+    angle: 0,
+    showName: true
   }) {
 
     attrs.currentState = attrs.currentState || 'go';
     attrs.defaultState = attrs.defaultState || 'go';
     attrs.speed = attrs.speed || {x: 1, y: 1};
+    attrs.showName = attrs.showName || true;
 
     super(attrs);
 
     this.orbitRadius = attrs.orbitRadius;
     this.centerObject = attrs.centerObject;
-    this.angle = 0;
+    this.angle = attrs.angle;
+
+    this.setStartingPosition()
   }
 
   onLoad() {
     setTimeout(() => {
-      this.pivotToCenter();
-      this.setStartingPosition()
+      // this.setStartingPosition();
+      // this.pivotToCenter();
+      this.offsetToCenter();
+      this.orbit = new Orbit({thing: this});
     }, 200)
   }
 
@@ -65,11 +72,42 @@ class Planet extends Thing {
     this.setAngle();
 
     let newPosition = {
-      x: this.orbitRadius * Math.sin(Math.PI * 2 * this.angle / 360) + this.centerObject.position.x,
-      y: this.orbitRadius * Math.cos(Math.PI * 2 * this.angle / 360) + this.centerObject.position.y
+      x: this.orbitRadius * Math.sin(Math.PI * 2 * this.angle / 360) + this.centerObject.getCenterPosition().x,
+      y: this.orbitRadius * Math.cos(Math.PI * 2 * this.angle / 360) + this.centerObject.getCenterPosition().y
     }
 
-    this.setPosition(newPosition)
+    this.setPosition(newPosition);
+  }
+}
+
+class Orbit {
+  constructor({
+    thing = {},
+    color = "#444444",
+    thickness = 1
+  }) {
+    Object.assign(this, {
+      thing, color, thickness
+    });
+
+    this.color = this.thing.screen.renderer.utils.string2hex(this.color)
+
+    this.graphics = this.thing.screen.renderer.graphics;
+    this.addOrbit()
+  }
+
+  addOrbit() {
+    let attrs = {
+      x: this.thing.centerObject.getCenterPosition().x,
+      y: this.thing.centerObject.getCenterPosition().y,
+      radius: this.thing.orbitRadius
+    }
+
+    this.graphics.lineStyle(this.thickness, this.color);
+    this.graphics.drawCircle(attrs.x, attrs.y, attrs.radius);
+    this.graphics.endFill();
+
+    this.thing.screen.renderer.stage.addChild(this.graphics)
   }
 }
 

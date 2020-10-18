@@ -150,7 +150,7 @@ export class SpriteSet {
     nameText.scale.set(1 / this.thing.scale);
     
     setTimeout(() => {
-      nameText.position.set(sprite.width, -40)
+      nameText.position.set(sprite.width, -40 + 2 * this.thing.offset.y)
       sprite.addChild(nameText);
     }, 300)
   }

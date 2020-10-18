@@ -4,14 +4,15 @@ import { InstructionSet } from './instructions.js';
 class App {
   constructor() {
     this.inputBlock = document.querySelector('.input-area');
-    // this.initialize();
-    this.initialize('solar_system');
+    this.initialize();
+    // this.initialize('solar_system');
 
     this.instructions = new AppInstructionSet({thing: this})
   }
 
-  initialize(type) {
-    type = type || 'initial';
+  initialize() {
+    let urlSearch = new URLSearchParams(location.search);
+    let type = urlSearch.get('screen') || 'initial';
     this.setScreen(type);
 
     this.inputBlock.value = '';
@@ -44,8 +45,8 @@ class AppInstructionSet extends InstructionSet {
   }
 
   screen(name) {
-    debugger;
-    this.app.initialize(name)
+    let newUrl = `${location.origin}?screen=${name}`;
+    location.assign(newUrl);
   }
 }
 

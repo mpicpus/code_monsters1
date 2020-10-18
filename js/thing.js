@@ -23,6 +23,7 @@ export class Thing {
     dimensions = {width: 100, height: 100},
     scale = 1,
     position = {x: 0, y: 0},
+    offset = {x: 0, y: 0},
     speed = {x: 0, y: 0, default: {x: 5, y: 0}},
     direction = 0,
     instructionSet = null, // new InstructionsSet(),
@@ -44,6 +45,7 @@ export class Thing {
       dimensions,
       scale,
       position,
+      offset,
       speed,
       direction,
       instructionSet,
@@ -113,7 +115,33 @@ export class Thing {
   setPosition(position = null) {
     position = position || this.position;
     this.position = position;
-    this.sprites.setPosition(position)
+    this.sprites.setPosition(this.offsetPosition())
+  }
+
+  offsetToCenter() {
+    let sprite = this.currentSprite();
+    if (!sprite) return;
+
+    this.offset = {
+      x: - sprite.width / 2,
+      y: - sprite.height / 2 
+    }
+  }
+
+  offsetPosition() {
+    return {
+      x: this.position.x + this.offset.x,
+      y: this.position.y + this.offset.y
+    }
+  }
+
+  getCenterPosition() {
+    let sprite = this.currentSprite();
+    let position = sprite.getGlobalPosition();
+    return {
+      x: position.x + sprite.width / 2,
+      y: position.y + sprite.height / 2
+    }
   }
 
   setScale(scale = null) {
