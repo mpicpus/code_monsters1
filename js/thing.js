@@ -18,6 +18,7 @@ export class Thing {
     displayName ='',
     showName = false,
     family = null,
+    spriteName = null,
     screen = {},
     wrapper = null,
     dimensions = {width: 100, height: 100},
@@ -40,6 +41,7 @@ export class Thing {
       displayName,
       showName,
       family,
+      spriteName,
       screen,
       wrapper,
       dimensions,
@@ -172,7 +174,9 @@ export class Thing {
   }
 
   getFolder() {
-    return `${this.family.join('/')}${this.name != '' && this.states ? '/' + this.name : ''}`;
+    let folder = `${this.family.join('/')}${this.name != '' && this.states ? '/' + this.name : ''}`;
+    folder = this.spriteName ? folder.replace(this.getName(), this.spriteName) : folder;
+    return folder
   }
 
   getFileExtension() {

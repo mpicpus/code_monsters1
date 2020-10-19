@@ -15,6 +15,8 @@ export class ScreenSolarSystem extends Screen {
   constructor(attrs) {
     attrs = attrs || {};
     super(attrs);
+
+    this.astronomicalMultiplicator = 0.7;
   }
 
   // Any operation to be run before parent Screen class initialize() method.
