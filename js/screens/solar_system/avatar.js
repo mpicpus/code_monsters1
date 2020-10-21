@@ -31,6 +31,10 @@ class Planet extends Thing {
     this.hasOrbit = attrs.hasOrbit == false ? false : true;
     this.showName = attrs.showName == false ? false : true;
 
+    this.takesDamage = true;
+    this.damage = 20;
+    this.moons = [];
+
     this.setStartingPosition()
   }
 
@@ -74,6 +78,28 @@ class Planet extends Thing {
 
     this.setPosition(newPosition);
   }
+
+  destroyMoons() {
+    this.moons.forEach(moon => moon.destroy())
+  }
+
+  onDestroy() {
+    this.destroyMoons();
+  }
+
+  destroy() {
+    this.onDestroy();
+    // this.setScale(1)
+    this.setState('destroy')
+  }
+
+  onStateComplete() {
+    return {
+      'destroy': () => {
+        this.remove()
+      }
+    }
+  }
 }
 
 class Orbit {
@@ -114,6 +140,10 @@ export class Mercury extends Planet {
         steps: 90,
         loop: true
       },
+      destroy: {
+        steps: ['explosion01', 74],
+        loop: false
+      }
     };
 
     // attrs.orbitRadius = 0.4;
@@ -131,6 +161,10 @@ export class Venus extends Planet {
         steps: 90,
         loop: true
       },
+      destroy: {
+        steps: ['explosion01', 74],
+        loop: false
+      }
     };
 
     // attrs.orbitRadius = 0.7;
@@ -148,6 +182,10 @@ export class Earth extends Planet {
         steps: 90,
         loop: true
       },
+      destroy: {
+        steps: ['explosion01', 74],
+        loop: false
+      }
     };
 
     // attrs.orbitRadius = 1;
@@ -162,7 +200,7 @@ export class Earth extends Planet {
   }
 
   createMoon() {
-    this.screen.things.createAndAdd(Moon, {centerObject: this})
+    this.moons.push(this.screen.things.createAndAdd(Moon, {centerObject: this}));
   }
 }
 
@@ -172,6 +210,10 @@ export class Moon extends Planet {
       go: {
         steps: 90,
         loop: true
+      },
+      destroy: {
+        steps: ['explosion01', 74],
+        loop: false
       }
     }
 
@@ -195,6 +237,10 @@ export class Mars extends Planet {
         steps: 90,
         loop: true
       },
+      destroy: {
+        steps: ['explosion01', 74],
+        loop: false
+      }
     };
 
     // attrs.orbitRadius = 1.5;
@@ -213,6 +259,10 @@ export class Jupiter extends Planet {
         steps: 90,
         loop: true
       },
+      destroy: {
+        steps: ['explosion01', 74],
+        loop: false
+      }
     };
 
     // attrs.orbitRadius = 5.2;
@@ -230,6 +280,10 @@ export class Saturn extends Planet {
         steps: 90,
         loop: true
       },
+      destroy: {
+        steps: ['explosion01', 74],
+        loop: false
+      }
     };
 
     // attrs.orbitRadius = 9.5;
@@ -247,6 +301,10 @@ export class Uranus extends Planet {
         steps: 90,
         loop: true
       },
+      destroy: {
+        steps: ['explosion01', 74],
+        loop: false
+      }
     };
 
     // attrs.orbitRadius = 19.2;
@@ -264,6 +322,10 @@ export class Neptune extends Planet {
         steps: 90,
         loop: true
       },
+      destroy: {
+        steps: ['explosion01', 74],
+        loop: false
+      }
     };
 
     // attrs.orbitRadius = 30.1;

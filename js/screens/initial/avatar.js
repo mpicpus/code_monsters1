@@ -57,11 +57,11 @@ export class PeaCannon extends GoodGuys {
     if (!this.sprites.loaded) return;
 
     let position = {
-      x: this.position.x + this.sprites.sprites.idle.getBounds().width * 0.8,
-      y: this.position.y + this.sprites.sprites.idle.getBounds().width * 0.1
+      x: this.position.x + this.currentSprite().getBounds().width * 0.8,
+      y: this.position.y + this.currentSprite().getBounds().width * 0.1
     };
 
-    this.screen.things.createAndAdd(ProjectileMod.Pea, {position: position, screen: this.screen})
+    this.screen.things.createAndAdd(ProjectileMod.Pea, {position: position})
 
     if (!this.screen.things.bad_guys || this.screen.things.bad_guys.length == 0) this.rest();
   }

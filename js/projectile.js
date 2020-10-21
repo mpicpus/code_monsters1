@@ -13,6 +13,6 @@ export class Projectile extends Thing {
   }
 
   hitThing() {
-    return this.damageableThings().find((thing) => thing.currentSprite().containsPoint(this.position))
+    return this.damageableThings().find((thing) => this.currentSprite().containsPoint(thing.offsetPosition()))
   }
 }

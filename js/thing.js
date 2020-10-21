@@ -99,6 +99,10 @@ export class Thing {
   }
 
   destroy() {
+    this.remove();
+  }
+
+  remove() {
     this.screen.things.remove(this);
   }
 
@@ -392,7 +396,7 @@ export class Things {
         let thing = projectile.hitThing();
         if (thing) {
           thing.takeDamage(projectile.damage);
-          this.remove(projectile);
+          projectile.takeDamage(thing.damage || 0);
         }
       })
     }

@@ -20,7 +20,13 @@ export class SpriteSet {
 
       if (this.thing.states) {
         result = Object.keys(this.thing.states).map(state => {
-          let array = Array(this.thing.states[state].steps).fill(null);
+          let stateObject = this.thing.states[state];
+          let isShared = typeof(stateObject.steps) == 'object';
+          let array = Array(isShared ? stateObject.steps[1] : stateObject.steps).fill(null)
+          
+          if (isShared)
+            return array.map((el, index) => (this.getSharedSpriteImage(stateObject.steps[0], index + 1)))
+
           return array.map((el, index) => this.getSpriteImage(state, index + 1))
         }).flat()
       } else {
@@ -32,10 +38,15 @@ export class SpriteSet {
       this.thing.screen.spritesCollection.add(this, imagePaths).then((textures) => {
         if (textures.length > 1) {
           this.sprites = {};
+
           for (let state in this.thing.states) {
-            let stateTextures = textures.filter(t => t.textureCacheIds[0].includes(state));
+            let stateObject = this.thing.states[state];
+            let isShared = typeof(stateObject.steps) == 'object';      
+            let keyword = isShared ? stateObject.steps[0] : state
+
+            let stateTextures = textures.filter(t => t.textureCacheIds[0].includes(keyword));
             let sprite = new this.renderer.AnimatedSprite(stateTextures);
-            sprite.loop = this.thing.states[state].loop === false ? false : true;
+            sprite.loop = stateObject.loop === false ? false : true;
             sprite.onComplete = this.thing.onStateComplete()[state];
             sprite.onLoop = () => this.onLoop();
             sprite.onFrameChange = (frameNum) => { this.onFrameChange(frameNum) }
@@ -63,6 +74,10 @@ export class SpriteSet {
 
   getSpriteImage(state, index) {
     return `assets/screens/${this.thing.getFolder()}${state ? '/' + state + '/' + index : ''}.${this.getFileExtension()}`
+  }
+
+  getSharedSpriteImage(name, index) {
+    return `assets/screens/${this.thing.screen.familyName()}/shared/${name}/${index}.${this.getFileExtension()}`
   }
 
   currentSprite() {
