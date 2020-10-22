@@ -16,8 +16,9 @@ export class Renderer {
     this.renderer = new PIXI.Application({
       width: this.canvas.canvasSize.x,
       height: this.canvas.canvasSize.y,
-      antialias: false,
       transparent: true,
+      antialias: true,
+      autoDensity: true,
       resolution: 1
     })
 

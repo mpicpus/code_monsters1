@@ -21,7 +21,7 @@ export class Thing {
     spriteName = null,
     screen = {},
     wrapper = null,
-    dimensions = {width: 100, height: 100},
+    dimensions = null,
     scale = 1,
     position = {x: 0, y: 0},
     offset = {x: 0, y: 0},
@@ -124,13 +124,34 @@ export class Thing {
     this.sprites.setPosition(this.offsetPosition())
   }
 
-  offsetToCenter() {
+  offsetTo(positionName) {
     let sprite = this.currentSprite();
     if (!sprite) return;
 
-    this.offset = {
-      x: - sprite.width / 2,
-      y: - sprite.height / 2 
+    let actions = {
+      center: () => {
+        this.offset = {
+          x: - sprite.width / 2,
+          y: - sprite.height / 2 
+        }
+      },
+      topCenter: () => {
+        this.offset = {
+          x: - sprite.width / 2,
+          y: sprite.height
+        }
+      },
+      topLeft: () => {
+        this.offset = {
+          x: sprite.width / 2,
+          y: sprite.height
+        }
+      },
+    }
+
+    if (Object.keys(actions).includes(positionName)){
+      actions[positionName]();
+      this.setPosition()
     }
   }
 
@@ -143,6 +164,9 @@ export class Thing {
 
   getCenterPosition() {
     let sprite = this.currentSprite();
+
+    if (!sprite || !sprite.transform) return this.position;
+    
     let position = sprite.getGlobalPosition();
     return {
       x: position.x + sprite.width / 2,
@@ -221,6 +245,10 @@ export class Thing {
     };
 
     try { actions[parameter]() } catch { return null }
+  }
+
+  destroyChildren() {
+    this.sprites.destroyChildren()
   }
 
   // Family utils
@@ -393,6 +421,8 @@ export class Things {
 
     if (projectiles) {
       projectiles.forEach((projectile) => {
+        if (projectile.currentState == 'destroy') return;
+        
         let thing = projectile.hitThing();
         if (thing) {
           thing.takeDamage(projectile.damage);

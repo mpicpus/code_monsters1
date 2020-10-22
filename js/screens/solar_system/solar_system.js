@@ -7,6 +7,7 @@ import { InstructionsEngineSolarSystem } from './instructions.js';
 import * as AvatarBasicMod from '../../avatar.js';
 import * as AvatarMod from './avatar.js';
 import * as BgMod from '../../background.js';
+import { Randomizer } from '/js/tools/randomizer.js';
 
 // Note: super() will also call initializeBackground and initializeThings.
 // Any object declared "after" super() will NOT be available in the intializers yet.
@@ -17,6 +18,15 @@ export class ScreenSolarSystem extends Screen {
     super(attrs);
 
     this.astronomicalMultiplicator = 0.7;
+
+    this.explosions = [
+      ['explosion01', 74],
+      ['explosion02', 20],
+      ['explosion03', 24],
+    ];
+
+    this.randomizer = Randomizer;
+    this.randomExplosionPicker = new this.randomizer.picker({set: this.explosions})
   }
 
   // Any operation to be run before parent Screen class initialize() method.
@@ -34,7 +44,7 @@ export class ScreenSolarSystem extends Screen {
       screen: this,
       extension: 'jpg',
       scale: 0.3,
-      dimensions: {height: this.canvas.canvasSize.y},
+      dimensions: {height: 'cover'},
       move: () => {}
     })
 
@@ -51,5 +61,10 @@ export class ScreenSolarSystem extends Screen {
     // this.things.createAndAdd(AvatarMod.Saturn, {centerObject: sun});
     // this.things.createAndAdd(AvatarMod.Uranus, {centerObject: sun});
     // this.things.createAndAdd(AvatarMod.Neptune, {centerObject: sun});
+  }
+
+  getRandomExplosion() {
+    // return this.randomExplosionPicker.pick()
+    return this.explosions[0]
   }
 }

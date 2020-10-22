@@ -9,10 +9,10 @@ export class Projectile extends Thing {
   }
 
   damageableThings() {
-    return this.damageableTypes.map(type => this.screen.things[type] || []).flat()
+    return this.damageableTypes.map(type => this.screen.things[type] || []).flat().filter(thing => thing.currentState != 'destroy')
   }
 
   hitThing() {
-    return this.damageableThings().find((thing) => this.currentSprite().containsPoint(thing.offsetPosition()))
+    return this.damageableThings().find((thing) => this.currentSprite().containsPoint(thing.getCenterPosition()))
   }
 }

@@ -2,16 +2,19 @@ import { InstructionsEngine } from '../../instructions.js';
 import * as AvatarBasicMod from '../../avatar.js';
 import * as AvatarMod from './avatar.js';
 import * as ProjectileMod from './projectile.js';
-import { Randomizer } from '/js/tools/randomizer.js';
 
 window.asteroid = ProjectileMod.Asteroid01;
 
 export class InstructionsEngineSolarSystem extends InstructionsEngine {
   attack() {
-    this.asteroidGenerator = this.asteroidGenerator || new Randomizer.generator({
+    this.asteroidGenerator = this.asteroidGenerator || new this.screen.randomizer.generator({
       source: this,
       generators: ['asteroid01'],
-      intervalRange: {min: 100, max: 4000}
+      intervalRange: {min: 100, max: 2000},
+      boost: {
+        interval: 120000,
+        quantityRange: [8, 25]
+      }
     })
 
     this.asteroidGenerator.start()
@@ -23,8 +26,14 @@ export class InstructionsEngineSolarSystem extends InstructionsEngine {
     this.asteroidGenerator.stop();
   }
 
+  boost() {
+    this.asteroidGenerator.launchBoost()
+  }
+
   asteroid01() {
-    this.screen.things.createAndAdd(ProjectileMod.Asteroid01, {speed: {x: 3, y: Math.random() * 2}})
+    this.screen.things.createAndAdd(ProjectileMod.Asteroid01, {
+      position: {x: -200, y: -200},
+      speed: {x: Math.random() * 5 + 2, y: Math.random() * 5 + 2}})
   }
 
   sun() {
@@ -77,6 +86,15 @@ export class InstructionsEngineSolarSystem extends InstructionsEngine {
     let sun = this.screen.things.sun[0];
     if (!sun) return;
     this.screen.things.createAndAdd(AvatarMod.Neptune, {centerObject: sun})
+  }
+
+  solarSystem() {
+    let bodies = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']
+
+    bodies.forEach((body, index) => {
+      if (body == 'sun' && this.screen.things.sun[0]) return;
+      setTimeout(() => { this[body]() }, 800 * index)
+    })
   }
 
 }

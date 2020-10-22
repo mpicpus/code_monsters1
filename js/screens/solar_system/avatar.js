@@ -3,17 +3,40 @@ import { Avatar } from '../../avatar.js';
 
 export class Sun extends Thing {
   constructor(attrs = {}) {
-    attrs.states = {idle: {steps: 23, loop: true}};
+    attrs.states = {
+      idle: {steps: 23, loop: true},
+      destroy: {steps: ['explosion_nova', 120], loop: false}
+    };
     attrs.scale = 0.2;
+
+    attrs.takesDamage = true;
+    attrs.damage = 40;
+    attrs.strength = 40;
 
     super(attrs);
   }
 
   onLoad() {
     setTimeout(() => {
-      this.offsetToCenter();
+      this.offsetTo('center');
       this.moveTo('center');
     }, 200)
+  }
+
+  destroy() {
+    if (this.scale) this.setScale(12 * this.scale);
+    this.setState('destroy');
+    this.wrapper.planet.forEach(p => p.destroy())
+    this.offsetTo('center');
+  }
+
+  onStateComplete() {
+    return {
+      'destroy': () => {
+        this.remove();
+        setTimeout(() => {this.screen.renderer.stop()}, 100);
+      }
+    }
   }
 }
 
@@ -40,7 +63,7 @@ class Planet extends Thing {
 
   onLoad() {
     setTimeout(() => {
-      this.offsetToCenter();
+      this.offsetTo('center');
       
       if (this.hasOrbit)
         this.orbit = new Orbit({thing: this});
@@ -83,14 +106,23 @@ class Planet extends Thing {
     this.moons.forEach(moon => moon.destroy())
   }
 
+  destroyOrbits() {
+    if (this.orbit) this.orbit.destroy();
+  }
+
   onDestroy() {
     this.destroyMoons();
+    this.destroyOrbits();
   }
 
   destroy() {
+    if (!this.currentSprite() || !this.currentSprite().transform) return;
+
     this.onDestroy();
-    // this.setScale(1)
+    this.setScale(8 * this.scale);
     this.setState('destroy')
+    this.offsetTo('center');
+    this.destroyChildren();
   }
 
   onStateComplete() {
@@ -131,6 +163,10 @@ class Orbit {
 
     this.thing.screen.renderer.stage.addChild(this.graphics)
   }
+
+  destroy() {
+    // this.graphics.clear();
+  }
 }
 
 export class Mercury extends Planet {
@@ -141,7 +177,7 @@ export class Mercury extends Planet {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.getRandomExplosion(),
         loop: false
       }
     };
@@ -162,7 +198,7 @@ export class Venus extends Planet {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.getRandomExplosion(),
         loop: false
       }
     };
@@ -183,7 +219,7 @@ export class Earth extends Planet {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.getRandomExplosion(),
         loop: false
       }
     };
@@ -212,7 +248,7 @@ export class Moon extends Planet {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.getRandomExplosion(),
         loop: false
       }
     }
@@ -238,7 +274,7 @@ export class Mars extends Planet {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.getRandomExplosion(),
         loop: false
       }
     };
@@ -260,7 +296,7 @@ export class Jupiter extends Planet {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.getRandomExplosion(),
         loop: false
       }
     };
@@ -281,7 +317,7 @@ export class Saturn extends Planet {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.getRandomExplosion(),
         loop: false
       }
     };
@@ -302,7 +338,7 @@ export class Uranus extends Planet {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.getRandomExplosion(),
         loop: false
       }
     };
@@ -323,7 +359,7 @@ export class Neptune extends Planet {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.getRandomExplosion(),
         loop: false
       }
     };

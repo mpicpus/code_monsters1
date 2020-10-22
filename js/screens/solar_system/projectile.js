@@ -12,12 +12,12 @@ export class Asteroid01 extends Projectile {
         loop: true
       },
       destroy: {
-        steps: ['explosion01', 74],
+        steps: attrs.screen.explosions[1],
         loop: false
       }
     };
 
-    attrs.scale = 0.5;
+    attrs.scale = 0.4;
     attrs.animationSpeed = 'fast';
 
     // attrs.speed = {x: 0, y: 0};
@@ -28,7 +28,7 @@ export class Asteroid01 extends Projectile {
 
     this.strength = 10;
     this.damage = 5;
-    this.damageableTypes = ['planet']
+    this.damageableTypes = ['planet', 'sun']
   }
 
   move() {
@@ -37,9 +37,14 @@ export class Asteroid01 extends Projectile {
     this.setPosition();
   }
 
+  takeDamage() {
+    this.destroy()
+  }
+
   destroy() {
-    this.setScale = 1;
     this.setState('destroy');
+    this.setScale(1.5 * this.scale);
+    this.offsetTo('center')
   }
 
   onStateComplete() {

@@ -170,6 +170,12 @@ export class SpriteSet {
     }, 300)
   }
 
+  destroyChildren() {
+    this.thing.stateNames().forEach(state => {
+      this.sprites[state].children.forEach(c => c.destroy())
+    })
+  }
+
   getCurrentSprite() {
     if (this.thing.states) {
       let [state, index] = [this.thing.state, this.thing.currentAnimationStep];
@@ -204,6 +210,8 @@ export class SpriteSet {
   }
 
   destroySprites() {
+    this.destroyChildren();
+
     this.thing.stateNames().forEach((state) => {
       this.sprites[state].destroy(false);
     })
