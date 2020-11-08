@@ -7,13 +7,17 @@ Randomizer.generator = class {
     source = {},
     generators = [],
     intervalRange = {min: 150, max: 4000},
-    boost = null
+    boost = null,
+    attrs = null,
+    onGenerate = () => {}
   } = {}) {
     Object.assign(this, {
       source,
       generators,
       intervalRange,
-      boost
+      boost,
+      attrs,
+      onGenerate
     });
 
     this.start()
@@ -36,7 +40,8 @@ Randomizer.generator = class {
     setTimeout(() => {
       let generator = this.getRandomGenerator();
 
-      this.source[generator]();
+      this.source[generator](this.attrs);
+      this.onGenerate()
       
       if (this.state == 'active')
         this.generate();
@@ -44,7 +49,6 @@ Randomizer.generator = class {
   }
 
   generateBoost() {
-    console.log(this.boost)
     if (!this.boost) return;
 
     this.boostInterval = window.setInterval(() => {
@@ -78,7 +82,6 @@ Randomizer.picker = class {
 
   pick() {
     let randy = Math.floor(Math.random() * this.set.length);
-    console.log(randy)
     return this.set[randy]
   }
 }

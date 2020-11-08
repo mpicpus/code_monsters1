@@ -9,6 +9,8 @@ import * as AvatarMod from './avatar.js';
 import * as BgMod from '../../background.js';
 import { Randomizer } from '/js/tools/randomizer.js';
 
+window.avatar = AvatarMod;
+
 // Note: super() will also call initializeBackground and initializeThings.
 // Any object declared "after" super() will NOT be available in the intializers yet.
 // beforeInitialize() allows to 
@@ -16,23 +18,14 @@ export class ScreenSolarSystem extends Screen {
   constructor(attrs) {
     attrs = attrs || {};
     super(attrs);
-
-    this.astronomicalMultiplicator = 0.7;
-
-    this.explosions = [
-      ['explosion01', 74],
-      ['explosion02', 20],
-      ['explosion03', 24],
-    ];
-
-    this.randomizer = Randomizer;
-    this.randomExplosionPicker = new this.randomizer.picker({set: this.explosions})
   }
 
   // Any operation to be run before parent Screen class initialize() method.
   // thus before "initializeThings" and "initializeBackground".
   beforeInitialize() {
+    this.astronomicalMultiplicator = 0.5;
     this.instructions = new InstructionsEngineSolarSystem({screen: this});
+    this.randomizer = Randomizer;
   }
 
   initializeBackground() {
@@ -52,19 +45,25 @@ export class ScreenSolarSystem extends Screen {
   }
 
   initializeThings() {
-    // let sun = this.things.createAndAdd(AvatarMod.Sun);
-    // this.things.createAndAdd(AvatarMod.Mercury, {centerObject: sun});
-    // this.things.createAndAdd(AvatarMod.Venus, {centerObject: sun});
-    // this.things.createAndAdd(AvatarMod.Earth, {centerObject: sun});
-    // this.things.createAndAdd(AvatarMod.Mars, {centerObject: sun});
-    // this.things.createAndAdd(AvatarMod.Jupiter, {centerObject: sun});
-    // this.things.createAndAdd(AvatarMod.Saturn, {centerObject: sun});
-    // this.things.createAndAdd(AvatarMod.Uranus, {centerObject: sun});
-    // this.things.createAndAdd(AvatarMod.Neptune, {centerObject: sun});
+    let explosionClasses = Object.keys(AvatarMod).filter(key => key.toLowerCase().includes('explosion'));
+    this.randomExplosionPicker = new this.randomizer.picker({set: explosionClasses})
+
+    explosionClasses.forEach(exClass => {
+      this.things.createAndAdd(AvatarMod[exClass], {preload: true})
+    })
+    // this.instructions.solarSystem();
+
   }
 
-  getRandomExplosion() {
-    // return this.randomExplosionPicker.pick()
-    return this.explosions[0]
+  getRandomExplosion(thing) {
+    let explosion = this.getRandomExplosionClass();
+    if (!explosion) return;
+
+    this.things.createAndAdd(explosion, {thing})
+  }
+
+  getRandomExplosionClass() {
+    let explosionClass = this.randomExplosionPicker.pick()
+    return AvatarMod[explosionClass]
   }
 }

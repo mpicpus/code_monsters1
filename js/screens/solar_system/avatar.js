@@ -1,5 +1,5 @@
 import { Thing } from '../../thing.js';
-import { Avatar } from '../../avatar.js';
+import { RedShot } from './projectile.js';
 
 export class Sun extends Thing {
   constructor(attrs = {}) {
@@ -8,10 +8,12 @@ export class Sun extends Thing {
       destroy: {steps: ['explosion_nova', 120], loop: false}
     };
     attrs.scale = 0.2;
+    attrs.scale = attrs.scale * app.screen.astronomicalMultiplicator * 5;
 
     attrs.takesDamage = true;
     attrs.damage = 40;
-    attrs.strength = 40;
+    attrs.strength = 10;
+    attrs.boundingShape = {shape: 'circle', draw: false};
 
     super(attrs);
   }
@@ -45,18 +47,22 @@ class Planet extends Thing {
     attrs.currentState = attrs.currentState || 'go';
     attrs.defaultState = attrs.defaultState || 'go';
     attrs.speed = attrs.speed || {x: 1, y: 1};
+    attrs.boundingShape = {shape: 'circle', draw: false};
+    attrs.scale = attrs.scale ? attrs.scale * app.screen.astronomicalMultiplicator / 0.7 : null;
 
     super(attrs);
 
-    this.orbitRadius = attrs.orbitRadius;
+    this.orbitRadius = attrs.skipOrbitAdjustment ? attrs.orbitRadius : attrs.orbitRadius + 200 * this.screen.astronomicalMultiplicator / 0.7;
     this.centerObject = attrs.centerObject;
     this.angle = attrs.angle;
     this.hasOrbit = attrs.hasOrbit == false ? false : true;
-    this.showName = attrs.showName == false ? false : true;
+    // this.showName = attrs.showName == false ? false : true;
+    this.showName = false;
 
     this.takesDamage = true;
     this.damage = 20;
     this.moons = [];
+    this.boundingRadiusMultiplier = attrs.boundingRadiusMultiplier || 0.8;
 
     this.setStartingPosition()
   }
@@ -64,7 +70,7 @@ class Planet extends Thing {
   onLoad() {
     setTimeout(() => {
       this.offsetTo('center');
-      
+   
       if (this.hasOrbit)
         this.orbit = new Orbit({thing: this});
 
@@ -100,6 +106,10 @@ class Planet extends Thing {
     }
 
     this.setPosition(newPosition);
+    // this.positionBoundingShape();
+    
+    // if (this.orbit)
+      // this.orbit.draw()
   }
 
   destroyMoons() {
@@ -116,21 +126,13 @@ class Planet extends Thing {
   }
 
   destroy() {
-    if (!this.currentSprite() || !this.currentSprite().transform) return;
-
-    this.onDestroy();
-    this.setScale(8 * this.scale);
-    this.setState('destroy')
-    this.offsetTo('center');
-    this.destroyChildren();
+    this.getRandomExplosion(this);
+    this.remove()
   }
 
-  onStateComplete() {
-    return {
-      'destroy': () => {
-        this.remove()
-      }
-    }
+  getRandomExplosion() {
+    // this.screen.getRandomExplosion(this)
+    this.screen.things.createAndAdd(Explosion01, {thing: this, scale: this.explosionScale || (this.scale * 10)})
   }
 }
 
@@ -146,26 +148,39 @@ class Orbit {
 
     this.color = this.thing.screen.renderer.utils.string2hex(this.color)
 
-    this.graphics = this.thing.screen.renderer.graphics;
     this.addOrbit()
   }
 
   addOrbit() {
+    this.graphics = new this.thing.screen.renderer.Graphics();
+    
     let attrs = {
       x: this.thing.centerObject.getCenterPosition().x,
       y: this.thing.centerObject.getCenterPosition().y,
       radius: this.thing.orbitRadius
     }
 
-    this.graphics.lineStyle(this.thickness, this.color);
-    this.graphics.drawCircle(attrs.x, attrs.y, attrs.radius);
-    this.graphics.endFill();
+    this.graphics.lineStyle(this.thickness, this.color)
+      .drawCircle(attrs.x, attrs.y, attrs.radius)
+      .endFill();
 
-    this.thing.screen.renderer.stage.addChild(this.graphics)
+    this.thing.screen.renderer.stage.addChild(this.graphics);
+  }
+
+  draw() {
+    let attrs = {
+      x: this.thing.centerObject.getCenterPosition().x,
+      y: this.thing.centerObject.getCenterPosition().y,
+      radius: this.thing.orbitRadius
+    }
+
+    this.graphics.lineStyle(this.thickness, this.color)
+      .drawCircle(attrs.x, attrs.y, attrs.radius)
+      .endFill();
   }
 
   destroy() {
-    // this.graphics.clear();
+    this.graphics.clear();
   }
 }
 
@@ -175,10 +190,6 @@ export class Mercury extends Planet {
       go: {
         steps: 90,
         loop: true
-      },
-      destroy: {
-        steps: attrs.screen.getRandomExplosion(),
-        loop: false
       }
     };
 
@@ -186,6 +197,7 @@ export class Mercury extends Planet {
     attrs.orbitRadius = 100;
     attrs.animationSpeed = 'fast';
     attrs.scale = 0.1;
+    attrs.boundingRadiusMultiplier = 0.7;
     super(attrs)
   }
 }
@@ -196,10 +208,6 @@ export class Venus extends Planet {
       go: {
         steps: 90,
         loop: true
-      },
-      destroy: {
-        steps: attrs.screen.getRandomExplosion(),
-        loop: false
       }
     };
 
@@ -217,10 +225,6 @@ export class Earth extends Planet {
       go: {
         steps: 90,
         loop: true
-      },
-      destroy: {
-        steps: attrs.screen.getRandomExplosion(),
-        loop: false
       }
     };
 
@@ -228,7 +232,10 @@ export class Earth extends Planet {
     attrs.orbitRadius = 300;
     attrs.animationSpeed = 'fast';
     attrs.scale = 0.2;
+    attrs.boundingRadiusMultiplier = 1;
     super(attrs);
+
+    this.explosionScale = 1;
   }
 
   afterOnload() {
@@ -246,10 +253,6 @@ export class Moon extends Planet {
       go: {
         steps: 90,
         loop: true
-      },
-      destroy: {
-        steps: attrs.screen.getRandomExplosion(),
-        loop: false
       }
     }
 
@@ -262,6 +265,8 @@ export class Moon extends Planet {
     attrs.showName = false;
     attrs.hasOrbit = false;
     attrs.spriteName = 'mercury';
+    attrs.skipOrbitAdjustment = true;
+
     super(attrs)
   }
 }
@@ -272,10 +277,6 @@ export class Mars extends Planet {
       go: {
         steps: 90,
         loop: true
-      },
-      destroy: {
-        steps: attrs.screen.getRandomExplosion(),
-        loop: false
       }
     };
 
@@ -294,10 +295,6 @@ export class Jupiter extends Planet {
       go: {
         steps: 90,
         loop: true
-      },
-      destroy: {
-        steps: attrs.screen.getRandomExplosion(),
-        loop: false
       }
     };
 
@@ -306,6 +303,8 @@ export class Jupiter extends Planet {
     attrs.animationSpeed = 'fast';
     attrs.scale = 0.2;
     super(attrs)
+
+    this.explosionScale = 1.5
   }
 }
 
@@ -315,10 +314,6 @@ export class Saturn extends Planet {
       go: {
         steps: 90,
         loop: true
-      },
-      destroy: {
-        steps: attrs.screen.getRandomExplosion(),
-        loop: false
       }
     };
 
@@ -336,10 +331,6 @@ export class Uranus extends Planet {
       go: {
         steps: 90,
         loop: true
-      },
-      destroy: {
-        steps: attrs.screen.getRandomExplosion(),
-        loop: false
       }
     };
 
@@ -357,10 +348,6 @@ export class Neptune extends Planet {
       go: {
         steps: 90,
         loop: true
-      },
-      destroy: {
-        steps: attrs.screen.getRandomExplosion(),
-        loop: false
       }
     };
 
@@ -372,6 +359,105 @@ export class Neptune extends Planet {
   }
 }
 
+export class DeathStar extends Planet {
+  constructor(attrs = {}) {
+    attrs.states = {
+      go: {
+        steps: 30,
+        loop: true
+      }
+    };
 
+    attrs.orbitRadius = 900;
+    attrs.animationSpeed = 'medium';
+    attrs.scale = 0.3;
+    super(attrs)
+  }
 
-window.Saturn = Saturn
+  afterOnload() {
+    this.attack()
+  }
+
+  attack() {
+    this.shooter = this.shooter || new this.screen.randomizer.generator({
+      source: this.screen.instructions,
+      generators: ['red_shot'],
+      attrs: { source: this },
+      intervalRange: {min: 100, max: 2000},
+      onGenerate: () => {console.log(`red_shot generated!!`)}
+    })
+
+    this.shooter.start();
+  }
+}
+
+// Explosions.
+// A group of things which are just wrappers for explosions.
+class Explosion extends Thing {
+  constructor(attrs = {}) {
+    attrs.defaultState = 'destroy';
+    attrs.collides = false;
+    attrs.scale = attrs.scale ? attrs.scale * app.screen.astronomicalMultiplicator / 0.7 : null;
+    
+    super(attrs)
+
+    this.thing = attrs.thing;
+    this.setStartingPosition()
+  }
+
+  setStartingPosition() {
+    if (!this.thing) return;
+
+    this.setPosition(this.thing.position)
+  }
+
+  onStateComplete() {
+    return {
+      'destroy': () => {
+        this.remove()
+      }
+    }
+  }
+}
+
+export class Explosion01 extends Explosion {
+  constructor(attrs = {}) {
+    attrs.states = {
+      destroy: {steps: 74, loop: false}
+    };
+
+    super(attrs)
+  }
+
+  onLoad() {
+    this.offsetTo('center');
+  }
+}
+
+export class Explosion02 extends Explosion {
+  constructor(attrs = {}) {
+    attrs.states = {
+      destroy: {steps: 20, loop: false}
+    };
+    attrs.animationSpeed = 'fast';
+    super(attrs)
+  }
+
+  onLoad() {
+    this.offsetTo('center');
+  }
+}
+
+export class Explosion03 extends Explosion {
+  constructor(attrs = {}) {
+    attrs.states = {
+      destroy: {steps: 24, loop: false}
+    }
+    super(attrs)
+  }
+
+  onLoad() {
+    this.offsetTo('center');
+  }
+}
+

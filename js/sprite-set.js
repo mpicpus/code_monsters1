@@ -36,7 +36,9 @@ export class SpriteSet {
       imagePaths = this.thing.screen.spritesCollection.contains(this) ? [] : result;
       
       this.thing.screen.spritesCollection.add(this, imagePaths).then((textures) => {
-        if (textures.length > 1) {
+        if (this.thing.preload)
+          resolve(result);
+        else if (textures.length > 1) {
           this.sprites = {};
 
           for (let state in this.thing.states) {
@@ -81,7 +83,10 @@ export class SpriteSet {
   }
 
   currentSprite() {
-    return this.state ? this.sprites[this.state] : null
+    if (this.sprites)
+      return this.state ? this.sprites[this.state] : null;
+    else if (this.sprite)
+      return this.sprite
   }
 
   baseSprite() {
@@ -121,13 +126,21 @@ export class SpriteSet {
         this.sprites[this.state].visible = true;
         this.sprites[this.state].play();
         resolve(this.state);
+      } else if (this.sprite) {
+        this.state = newState;
+        this.sprite.visible = true;
+        resolve(this.state)
       }
     })
   }
 
   setPosition(position) {
-    for(let state in this.sprites) {
-      this.sprites[state].position.set(position.x, position.y)
+    if (this.sprites) {
+      for(let state in this.sprites) {
+        this.sprites[state].position.set(position.x, position.y)
+      }
+    } else if (this.sprite) {
+      this.sprite.position.set(position.x, position.y)
     }
   }
 
@@ -138,11 +151,18 @@ export class SpriteSet {
   }
 
   setScale(scale) {
-    for(let state in this.sprites) {
+    if (this.sprites) {
+      for(let state in this.sprites) {
+        if (Array.isArray(scale))
+          this.sprites[state].scale.set(...scale);
+        else
+          this.sprites[state].scale.set(scale);
+      }
+    } else if (this.sprite) {
       if (Array.isArray(scale))
-        this.sprites[state].scale.set(...scale);
+        this.sprite.scale.set(...scale);
       else
-        this.sprites[state].scale.set(scale);
+        this.sprite.scale.set(scale);
     }
   }
 
@@ -171,9 +191,13 @@ export class SpriteSet {
   }
 
   destroyChildren() {
-    this.thing.stateNames().forEach(state => {
-      this.sprites[state].children.forEach(c => c.destroy())
-    })
+    if (this.sprite) {
+      this.sprite.children.forEach(c => c.destroy())
+    } else if (this.sprites) {
+      this.thing.stateNames().forEach(state => {
+        this.sprites[state].children.forEach(c => c.destroy())
+      })
+    }
   }
 
   getCurrentSprite() {
@@ -212,9 +236,14 @@ export class SpriteSet {
   destroySprites() {
     this.destroyChildren();
 
-    this.thing.stateNames().forEach((state) => {
-      this.sprites[state].destroy(false);
-    })
+    if (this.sprite) {
+      this.sprite.destroy(false)
+    } else if (this.sprites) {
+      this.thing.stateNames().forEach((state) => {
+        this.sprites[state].destroy(false);
+      })
+    }
+
   }
 
   static avatarSteps(type) {

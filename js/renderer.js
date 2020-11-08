@@ -30,8 +30,12 @@ export class Renderer {
     this.Sprite = PIXI.Sprite;
     this.AnimatedSprite = PIXI.AnimatedSprite;
     this.Texture = PIXI.Texture;
+    this.Graphics = PIXI.Graphics;
     this.Text = PIXI.Text;
     this.utils = PIXI.utils;
+    this.Circle = PIXI.Circle;
+    this.Rectangle = PIXI.Rectangle;
+
     this.graphics = new PIXI.Graphics();
 
     // Adds game loop function to the main loop.

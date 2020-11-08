@@ -25,7 +25,9 @@ export class Thing {
     scale = 1,
     position = {x: 0, y: 0},
     offset = {x: 0, y: 0},
-    speed = {x: 0, y: 0, default: {x: 5, y: 0}},
+    speed = {x: 0, y: 0, angular: 0},
+    initialSpeed = {x: 0, y: 0, angular: 0},
+    acceleration = {x: 0, y: 0, angular: 0},
     direction = 0,
     instructionSet = null, // new InstructionsSet(),
     states = null,
@@ -34,7 +36,13 @@ export class Thing {
     animationSpeed = 'medium',
     extension = 'png',
     level = 1,
-    strength = 10
+    strength = 10,
+    damage = 0,
+    collides = true,
+    preload = false,
+    boundingShape = {circle: null, rectangle: null, draw: false},
+    boundingRadiusMultiplier,
+    dead = false
   } = {}) {
     Object.assign(this, {
       name,
@@ -49,6 +57,8 @@ export class Thing {
       position,
       offset,
       speed,
+      initialSpeed,
+      acceleration,
       direction,
       instructionSet,
       states,
@@ -57,21 +67,83 @@ export class Thing {
       animationSpeed,
       extension,
       level,
-      strength
+      strength,
+      damage,
+      collides,
+      preload,
+      boundingShape,
+      boundingRadiusMultiplier,
+      dead
     });
 
     this.initialize()
   }
-
-  move() {}
 
   initialize() {
     this.family = this.family || this.getFamily();
     this.sprites = new SpriteSet(this);
   }
 
+  // Basic movement function.
+  // Override in subclass if necessary.
+  move() {
+    // if (this.family.includes('red_shot')) debugger;
+    this.position.x += this.speed.x;
+    this.position.y += this.speed.y;
+    if (this.rotation && this.speed.angular)
+      this.rotation += this.speed.angular;
+
+    this.setPosition();
+  }
+
   getName() {
     return !this.name || this.name == '' ? this.underscore(this.constructor.name) : this.name
+  }
+
+  createBoundingShape() {
+    let shape = this.boundingShape.shape;
+
+    if (!shape) return;
+
+    shape = shape.split('').map((c, i) => i == 0 ? c.toUpperCase() : c).join('');
+    this[`createBounding${shape}`](this.boundingRadiusMultiplier)
+  }
+
+  // "radiusMultiplier" applies to a radius with a original size of height/2.
+  // 1 will generate a circle raughly the size of the object,
+  // 2 will generate a circle double the size...
+  // and so on.
+  createBoundingCircle(radiusMultiplier) {
+    if (this.dead) return;
+    radiusMultiplier = radiusMultiplier || 1;
+    console.log('circle', this);
+
+    this.boundingShape.circle = {
+      center: () => { return this.getCenterPosition() },
+      radius: () => { return this.height() / 2 * radiusMultiplier }
+    }
+
+    if (this.boundingShape.draw)
+      this.drawBoundaries()
+  }
+
+  drawBoundaries(color) {
+    color = color || "#fffff"
+    let circle = this.boundingShape.circle;
+    let dimension = circle.radius() / this.scale;
+    
+    if (circle) {
+      let graphics = new this.screen.renderer.Graphics();
+      let position = { x: dimension, y: dimension };
+
+      color = this.screen.renderer.utils.string2hex(color);
+
+      graphics.lineStyle(1, color)
+        .drawCircle(position.x, position.y, dimension)
+        .endFill();
+
+      this.currentSprite().addChild(graphics);
+    }
   }
 
   onImageLoad() {}
@@ -79,7 +151,11 @@ export class Thing {
   onSpritesLoaded() {
     this.setPosition();
     this.setScale();
-    this.setState().then(() => this.onLoad());
+    this.setState().then(() => {
+      setTimeout(() => { this.createBoundingShape() }, 500);
+      this.onLoad()
+    });
+
   }
 
   onLoad() {}
@@ -138,15 +214,39 @@ export class Thing {
       topCenter: () => {
         this.offset = {
           x: - sprite.width / 2,
-          y: sprite.height
+          y: 0
         }
       },
       topLeft: () => {
         this.offset = {
-          x: sprite.width / 2,
-          y: sprite.height
+          x: 0,
+          y: 0
         }
       },
+      centerLeft: () => {
+        this.offset = {
+          x: 0,
+          y: - sprite.height / 2
+        }
+      },
+      centerRight: () => {
+        this.offset = {
+          x: - sprite.width,
+          y: - sprite.height / 2
+        }
+      },
+      bottomLeft: () => {
+        this.offset = {
+          x: 0,
+          y: - sprite.height
+        }
+      },
+      bottomRight: () => {
+        this.offset = {
+          x: - sprite.widht,
+          x: - sprite.height
+        }
+      }
     }
 
     if (Object.keys(actions).includes(positionName)){
@@ -191,6 +291,10 @@ export class Thing {
 
   width() {
     return this.currentSprite().width
+  }
+
+  height() {
+    return this.currentSprite().height
   }
 
   currentSprite() {
@@ -380,6 +484,7 @@ export class Things {
   // Memory efficient:
   removeThing(thing) {
     thing.sprites.destroySprites();
+    thing.dead = true;
 
     // Sets the element to 'null' => unreferenced objects will, theoretically, be erased from memory in the next cycle.
     delete(this.collection[this.collection.indexOf(thing)]);
@@ -409,7 +514,12 @@ export class Things {
   move() {
     this.movingThings().forEach(thing => thing.move());
     this.removeRogues();
+    this.manageCollisions();
     this.manageProjectiles()
+  }
+
+  manageCollisions() {
+    
   }
 
   removeRogues() {
@@ -419,7 +529,7 @@ export class Things {
   manageProjectiles() {
     let projectiles = this.projectile;
 
-    if (projectiles) {
+    if (projectiles.length > 0) {
       projectiles.forEach((projectile) => {
         if (projectile.currentState == 'destroy') return;
         
@@ -432,4 +542,3 @@ export class Things {
     }
   }
 }
-
