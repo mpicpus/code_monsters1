@@ -14,13 +14,15 @@ export class Screen {
       thing: 180,
       trap: 45,
       font: 13,
-    }
+    },
+    globals = {}
   } = {}) {
     Object.assign(this, {
       background,
       things,
       instructions,
-      defaultSizes
+      defaultSizes,
+      globals
     });
 
     this.canvas = new Canvas();

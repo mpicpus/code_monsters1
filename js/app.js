@@ -12,7 +12,7 @@ class App {
 
   initialize() {
     let urlSearch = new URLSearchParams(location.search);
-    let type = urlSearch.get('screen') || 'initial';
+    let type = urlSearch.get('screen') || 'solar_system';
     this.setScreen(type);
 
     this.inputBlock.value = '';

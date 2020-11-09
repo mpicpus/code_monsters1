@@ -21,12 +21,7 @@ export class Projectile extends Thing {
 
   hitThing() {
     return this.damageableThings().find((thing) => {
-      let ts = thing.boundingShape.circle;
-      let s = this.boundingShape.circle;
-
-      if (!ts || !s) return;
-
-      return Math.hypot(ts.center().x - s.center().x, ts.center().y - s.center().y) < ts.radius() + s.radius()
+      return this.distanceTo(thing) < 0;
     })
   }
 }

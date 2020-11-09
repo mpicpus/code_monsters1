@@ -8,11 +8,16 @@ export class Pea extends Projectile {
       go: 1
     };
 
+    attrs.boundingShape = {
+      shape: 'circle'
+    }
+
     attrs.scale = .15;
 
     super(attrs);
 
-    this.damage = 2;
+    this.damage = 1;
+    this.strength = 1;
     this.damageableTypes = ['bad_guys']
   }
 

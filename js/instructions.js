@@ -18,6 +18,8 @@ export class InstructionsEngine {
     this.inputBlock = document.querySelector(this.selector);
     this.writeEvent = this.inputBlock.addEventListener('keyup', this.handleKeypress.bind(this));
 
+    this.inputBlock.focus();
+
     this.buffer = [];
   }
 

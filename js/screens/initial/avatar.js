@@ -4,6 +4,10 @@ import * as ProjectileMod from './projectile.js';
 export class BadGuys extends Avatar {
   constructor(attrs = {}) {
     attrs.takesDamage = true;
+    attrs.boundingShape = {
+      shape: 'circle'
+    };
+    
     super(attrs)
   }
 }

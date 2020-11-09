@@ -42,7 +42,8 @@ export class Thing {
     preload = false,
     boundingShape = {circle: null, rectangle: null, draw: false},
     boundingRadiusMultiplier,
-    dead = false
+    dead = false,
+    canWanderOut = false
   } = {}) {
     Object.assign(this, {
       name,
@@ -73,7 +74,8 @@ export class Thing {
       preload,
       boundingShape,
       boundingRadiusMultiplier,
-      dead
+      dead,
+      canWanderOut
     });
 
     this.initialize()
@@ -116,11 +118,10 @@ export class Thing {
   createBoundingCircle(radiusMultiplier) {
     if (this.dead) return;
     radiusMultiplier = radiusMultiplier || 1;
-    console.log('circle', this);
 
     this.boundingShape.circle = {
       center: () => { return this.getCenterPosition() },
-      radius: () => { return this.height() / 2 * radiusMultiplier }
+      radius: this.height() / 2 * radiusMultiplier
     }
 
     if (this.boundingShape.draw)
@@ -202,7 +203,7 @@ export class Thing {
 
   offsetTo(positionName) {
     let sprite = this.currentSprite();
-    if (!sprite) return;
+    if (!sprite || !sprite.transform) return;
 
     let actions = {
       center: () => {
@@ -294,7 +295,8 @@ export class Thing {
   }
 
   height() {
-    return this.currentSprite().height
+    let sprite = this.currentSprite();
+    return sprite && sprite.height ? sprite.height : 0;
   }
 
   currentSprite() {
@@ -353,6 +355,22 @@ export class Thing {
 
   destroyChildren() {
     this.sprites.destroyChildren()
+  }
+
+  // Distance and collision
+  distanceTo(otherThing) {
+    let oio = otherThing.impactObject();
+    let io = this.impactObject();
+
+    return Math.hypot(oio.x - io.x, oio.y - io.y) - oio.radius - io.radius
+  }
+
+  impactObject() {
+    let circle = this.boundingShape.circle;
+    if (circle)
+      return Object.assign(circle.center(), {radius: circle.radius})
+    else
+      return Object.assign(this.getCenterPosition(), {radius: 0})
   }
 
   // Family utils
@@ -494,6 +512,8 @@ export class Things {
   }
 
   isOutOfTheCanvas(thing) {
+    if (thing.canWanderOut) return false;
+
     return (thing.speed.x < 0 && thing.position.x < 0) ||
       (thing.speed.x > 0 && thing.position.x > this.screen.canvas.canvasSize.x) ||
       (thing.speed.y < 0 && thing.position.y < 0) ||
@@ -531,7 +551,7 @@ export class Things {
 
     if (projectiles.length > 0) {
       projectiles.forEach((projectile) => {
-        if (projectile.currentState == 'destroy') return;
+        if (projectile.dead) return;
         
         let thing = projectile.hitThing();
         if (thing) {

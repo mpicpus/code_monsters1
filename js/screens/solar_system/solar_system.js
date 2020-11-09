@@ -8,12 +8,13 @@ import * as AvatarBasicMod from '../../avatar.js';
 import * as AvatarMod from './avatar.js';
 import * as BgMod from '../../background.js';
 import { Randomizer } from '/js/tools/randomizer.js';
+import { ScoreboardSolarSystem } from './scoreboard.js';
 
 window.avatar = AvatarMod;
 
-// Note: super() will also call initializeBackground and initializeThings.
+// Note: super() will also call "initializeBackground" and "initializeThings".
 // Any object declared "after" super() will NOT be available in the intializers yet.
-// beforeInitialize() allows to 
+// beforeInitialize() allows to set any needed attrs before they are called.
 export class ScreenSolarSystem extends Screen {
   constructor(attrs) {
     attrs = attrs || {};
@@ -25,7 +26,19 @@ export class ScreenSolarSystem extends Screen {
   beforeInitialize() {
     this.astronomicalMultiplicator = 0.5;
     this.instructions = new InstructionsEngineSolarSystem({screen: this});
+    this.scoreboard = new ScoreboardSolarSystem({screen: this});
     this.randomizer = Randomizer;
+
+    this.globals = {
+      canCreateDeathStar: true,
+      canCreatePlanets: true,
+      canCreateSolarSystem: true,
+      maxNumOfPlanets: {
+        total: null,
+        death_star: 1,
+        default: 5
+      }
+    }
   }
 
   initializeBackground() {
@@ -52,7 +65,7 @@ export class ScreenSolarSystem extends Screen {
       this.things.createAndAdd(AvatarMod[exClass], {preload: true})
     })
     // this.instructions.solarSystem();
-
+    
   }
 
   getRandomExplosion(thing) {

@@ -1,5 +1,5 @@
 import { Projectile } from '../../projectile.js';
-import { Explosion02 } from './avatar.js';
+import { Explosion02, Explosion04 } from './avatar.js';
 
 export class RedShot extends Projectile {
   constructor(attrs = {}) {
@@ -12,50 +12,67 @@ export class RedShot extends Projectile {
       shape: 'circle'
     };
 
-    attrs.scale = 0.5 * app.screen.astronomicalMultiplicator;
+    attrs.scale = 0.6 * app.screen.astronomicalMultiplicator;
 
     super(attrs);
 
     this.damageableTypes = ['asteroid'];
     this.strength = 1;
-    this.damage = 4;
+    this.damage = 2;
 
     this.source = attrs.source;
     this.target = attrs.target;
-    this.linearSpeed = 0.5;
+    this.linearSpeed = 15;
+
+    this.setInitialPosition();
 
     this.acquireTarget().then(target => {
       if (target) {
         this.target = target;
-        this.setInitialPosition();
-        this.setInitialSpeed()
+        this.targetSpeed = this.target.speed;
+        setTimeout(() => {
+          this.setChasingSpeed();
+          // this.fireShot()
+        }, 10 )
       } else this.destroy();
     });
   }
 
   acquireTarget() {
     return new Promise((resolve, reject) => {
-      let num = this.screen.things.asteroid.length;
-
-      if (num == 0) resolve(null)
-      else resolve(this.screen.things.asteroid[num - 1]);
+      let sun = this.screen.things.sun[0];
+      resolve(this.screen.things.asteroid.sort((a, b) => a.distanceTo(sun) - b.distanceTo(sun))[0])
     })
   }
 
   setInitialPosition() {
+    if (!this.source || this.source.dead) {
+      this.destroy();
+      return
+    };
+
     this.position = this.source.getCenterPosition()
   }
 
-  setInitialSpeed() {
+  setChasingSpeed() {
     let tp = this.target.getCenterPosition();
     let p = this.getCenterPosition();
 
-    let angle = Math.atan2((tp.x - p.x), (tp.y - p.y));
+    let angle = Math.atan2((tp.y - p.y), (tp.x - p.x));
 
     this.speed = {
-      x: this.linearSpeed * Math.cos(angle),
-      y: this.linearSpeed * Math.sin(angle)
+      x: this.linearSpeed * Math.cos(angle) + this.target.speed.x,
+      y: this.linearSpeed * Math.sin(angle) + this.target.speed.y
     }
+  }
+
+  fireShot() {
+    this.screen.things.createAndAdd(Explosion04, {scale: 0.1, thing: this})
+  }
+
+  destroy() {
+    this.wrapper.createAndAdd(Explosion04, {thing: this, speed: this.targetSpeed, scale: this.scale * 0.7, animationSpeed: 'crazy'})
+    this.remove();
   }
 }
 
@@ -78,8 +95,8 @@ class Asteroid extends Projectile {
 
   destroy() {
     // this.getRandomExplosion();
+    this.wrapper.createAndAdd(Explosion02, {thing: this, scale: this.scale * 2, speed: {x: this.speed.x / 3, y: this.speed.y / 3}})
     this.remove();
-    this.wrapper.createAndAdd(Explosion02, {position: this.getCenterPosition(), scale: this.scale * 2})
   }
 
   getRandomExplosion() {
@@ -103,13 +120,13 @@ export class Asteroid01 extends Asteroid {
 
     super(attrs);
 
-    this.strength = 10;
+    this.strength = 5;
     this.damage = 5;
   }
 
-  takeDamage() {
-    this.destroy()
-  }
+  // takeDamage() {
+  //   this.destroy()
+  // }
 
   onLoad() {
     this.offsetTo('center')

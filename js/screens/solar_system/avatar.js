@@ -12,7 +12,7 @@ export class Sun extends Thing {
 
     attrs.takesDamage = true;
     attrs.damage = 40;
-    attrs.strength = 10;
+    attrs.strength = 20;
     attrs.boundingShape = {shape: 'circle', draw: false};
 
     super(attrs);
@@ -49,6 +49,7 @@ class Planet extends Thing {
     attrs.speed = attrs.speed || {x: 1, y: 1};
     attrs.boundingShape = {shape: 'circle', draw: false};
     attrs.scale = attrs.scale ? attrs.scale * app.screen.astronomicalMultiplicator / 0.7 : null;
+    attrs.canWanderOut = true;
 
     super(attrs);
 
@@ -121,13 +122,14 @@ class Planet extends Thing {
   }
 
   onDestroy() {
-    this.destroyMoons();
+    // this.destroyMoons();
     this.destroyOrbits();
   }
 
   destroy() {
     this.getRandomExplosion(this);
-    this.remove()
+    this.remove();
+    this.onDestroy()
   }
 
   getRandomExplosion() {
@@ -368,10 +370,16 @@ export class DeathStar extends Planet {
       }
     };
 
-    attrs.orbitRadius = 900;
+    attrs.orbitRadius = 30;
+    attrs.hasOrbit = false;
     attrs.animationSpeed = 'medium';
     attrs.scale = 0.3;
+
+    attrs.strength = 5;
+
     super(attrs)
+
+    this.explosionScale = 1;
   }
 
   afterOnload() {
@@ -383,11 +391,31 @@ export class DeathStar extends Planet {
       source: this.screen.instructions,
       generators: ['red_shot'],
       attrs: { source: this },
-      intervalRange: {min: 100, max: 2000},
-      onGenerate: () => {console.log(`red_shot generated!!`)}
+      intervalRange: {min: 50, max: 200},
+      onGenerate: () => {}
     })
 
     this.shooter.start();
+  }
+
+  rest() {
+    if (!this.shooter) return;
+
+    this.shooter.stop()
+  }
+
+  destroyShooter() {
+    if (!this.shooter) return;
+
+    this.rest();
+    this.shooter = null;
+  }
+
+  onDestroy() {
+    debugger;
+    this.screen.globals.canCreateDeathStar = true;
+    this.destroyShooter();
+    this.destroyOrbits();
   }
 }
 
@@ -395,7 +423,7 @@ export class DeathStar extends Planet {
 // A group of things which are just wrappers for explosions.
 class Explosion extends Thing {
   constructor(attrs = {}) {
-    attrs.defaultState = 'destroy';
+    attrs.defaultState = attrs.defaultState || 'destroy';
     attrs.collides = false;
     attrs.scale = attrs.scale ? attrs.scale * app.screen.astronomicalMultiplicator / 0.7 : null;
     
@@ -413,7 +441,7 @@ class Explosion extends Thing {
 
   onStateComplete() {
     return {
-      'destroy': () => {
+      'go': () => {
         this.remove()
       }
     }
@@ -436,10 +464,12 @@ export class Explosion01 extends Explosion {
 
 export class Explosion02 extends Explosion {
   constructor(attrs = {}) {
+    attrs.defaultState = 'go';
     attrs.states = {
-      destroy: {steps: 20, loop: false}
+      go: {steps: 20, loop: false}
     };
     attrs.animationSpeed = 'fast';
+
     super(attrs)
   }
 
@@ -453,6 +483,22 @@ export class Explosion03 extends Explosion {
     attrs.states = {
       destroy: {steps: 24, loop: false}
     }
+
+    super(attrs)
+  }
+
+  onLoad() {
+    this.offsetTo('center');
+  }
+}
+
+export class Explosion04 extends Explosion {
+  constructor(attrs = {}) {
+    attrs.defaultState = 'go';
+    attrs.states = {
+      go: {steps: 10, loop: false}
+    };
+    attrs.animationSpeed = attrs.animationSpeed || 'medium'
     super(attrs)
   }
 
