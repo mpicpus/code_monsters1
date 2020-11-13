@@ -24,6 +24,8 @@ export class RedShot extends Projectile {
     this.target = attrs.target;
     this.linearSpeed = 15;
 
+    this.shotSoundPicker = new this.screen.randomizer.picker({ set: ['shot01', 'shot02', 'shot03'] });
+
     this.setInitialPosition();
 
     this.acquireTarget().then(target => {
@@ -41,7 +43,11 @@ export class RedShot extends Projectile {
   acquireTarget() {
     return new Promise((resolve, reject) => {
       let sun = this.screen.things.sun[0];
-      resolve(this.screen.things.asteroid.sort((a, b) => a.distanceTo(sun) - b.distanceTo(sun))[0])
+      let target = this.screen.things.asteroid
+                      .sort((a, b) => a.distanceTo(sun) - b.distanceTo(sun))
+                      .filter(a => a.position.x < sun.position.x && a.position.y < sun.position.y )[0];
+
+      resolve(target)
     })
   }
 
@@ -74,6 +80,16 @@ export class RedShot extends Projectile {
     this.wrapper.createAndAdd(Explosion04, {thing: this, speed: this.targetSpeed, scale: this.scale * 0.7, animationSpeed: 'crazy'})
     this.remove();
   }
+
+  onSetState() {
+    return {
+      'go': () => {
+        let shotSound = this.shotSoundPicker.pick();
+        // let shotSound = 'shot01';
+        this.sound.play(shotSound, 0.1)
+      }
+    }
+  }
 }
 
 export class RedBeam extends Projectile {
@@ -90,11 +106,13 @@ class Asteroid extends Projectile {
 
     super(attrs);
 
-    this.damageableTypes = ['planet', 'sun']
+    this.damageableTypes = ['planet', 'sun'];
+    this.randomExpSoundPicker = new this.screen.randomizer.picker({ set: ['explosion04'] });
   }
 
   destroy() {
     // this.getRandomExplosion();
+    this.sound.play(this.randomExpSoundPicker.pick())
     this.wrapper.createAndAdd(Explosion02, {thing: this, scale: this.scale * 2, speed: {x: this.speed.x / 3, y: this.speed.y / 3}})
     this.remove();
   }

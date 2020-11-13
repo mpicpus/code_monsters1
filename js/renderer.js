@@ -35,6 +35,7 @@ export class Renderer {
     this.utils = PIXI.utils;
     this.Circle = PIXI.Circle;
     this.Rectangle = PIXI.Rectangle;
+    this.Container = PIXI.Container;
 
     this.graphics = new PIXI.Graphics();
 

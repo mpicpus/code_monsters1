@@ -9,6 +9,7 @@ import * as AvatarMod from './avatar.js';
 import * as BgMod from '../../background.js';
 import { Randomizer } from '/js/tools/randomizer.js';
 import { ScoreboardSolarSystem } from './scoreboard.js';
+import { SoundSolarSystem } from './sound.js';
 
 window.avatar = AvatarMod;
 
@@ -27,6 +28,7 @@ export class ScreenSolarSystem extends Screen {
     this.astronomicalMultiplicator = 0.5;
     this.instructions = new InstructionsEngineSolarSystem({screen: this});
     this.scoreboard = new ScoreboardSolarSystem({screen: this});
+    this.sound = new SoundSolarSystem({screen: this});
     this.randomizer = Randomizer;
 
     this.globals = {

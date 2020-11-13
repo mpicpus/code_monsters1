@@ -4,7 +4,14 @@
 export class Scoreboard {
   constructor({
     screen = null,
-    figures = {counts: {}, things: {}}
+    figures = {
+      keys: {
+        counts: [],
+        things: []
+      },
+      counts: {},
+      things: {}
+    }
   } = {}) {
     this.screen = screen;
     this.figures = figures;
@@ -12,9 +19,17 @@ export class Scoreboard {
     this.panels = []
   }
 
+  allKeys() {
+    let keys = [];
+
+    Object.keys(this.figures.keys).forEach(key => keys.concat(this.figures.keys[key]));
+    
+    return keys
+  }
+
   updateFigures() {
-    updateCounts();
-    updateThings();
+    this.updateCounts();
+    this.updateThings();
   }
 
   // Update counts of specific groups of objects.
@@ -37,7 +52,7 @@ export class Scoreboard {
 
   getThingInfo(thing) {
     return {
-      strength: thing.strength
+      strength: thing ? thing.strength : null
     }
   }
 

@@ -84,6 +84,8 @@ export class Thing {
   initialize() {
     this.family = this.family || this.getFamily();
     this.sprites = new SpriteSet(this);
+    if (this.screen.sound)
+      this.sound = this.screen.sound;
   }
 
   // Basic movement function.
@@ -153,7 +155,7 @@ export class Thing {
     this.setPosition();
     this.setScale();
     this.setState().then(() => {
-      setTimeout(() => { this.createBoundingShape() }, 500);
+      setTimeout(() => { this.createBoundingShape() }, 50);
       this.onLoad()
     });
 
@@ -162,6 +164,10 @@ export class Thing {
   onLoad() {}
 
   onSpriteAdded() {}
+
+  onSetState() {
+    return {}
+  }
 
   onStateComplete() {
     return {}
@@ -188,8 +194,14 @@ export class Thing {
   }
 
   setState(state) {
+    // if (this.family.includes('red_shot')) debugger;
+    state = state || this.defaultState;
+
+    if (typeof(this.onSetState()[state]) == 'function') {
+      this.onSetState()[state]();
+    }
+
     return new Promise((resolve, reject) => {
-      state = state || this.defaultState;
       this.currentState = state;
       this.sprites.setState(state).then(resolve);
     })
@@ -509,6 +521,9 @@ export class Things {
 
     // Removes 'null' elements from the collection.
     this.collection = this.collection.filter(thing => thing);
+
+    if (thing.family.filter(i => this.screen.scoreboard.allKeys().includes(i)).length > 0)
+      this.screen.scoreboard.updateFigures();
   }
 
   isOutOfTheCanvas(thing) {

@@ -65,6 +65,8 @@ class Planet extends Thing {
     this.moons = [];
     this.boundingRadiusMultiplier = attrs.boundingRadiusMultiplier || 0.8;
 
+    this.explosionSoundPicker = new this.screen.randomizer.picker({ set: ['explosion01', 'explosion02', 'explosion03', 'explosion05'] });
+
     this.setStartingPosition()
   }
 
@@ -127,6 +129,7 @@ class Planet extends Thing {
   }
 
   destroy() {
+    this.sound.play(this.explosionSoundPicker.pick())
     this.getRandomExplosion(this);
     this.remove();
     this.onDestroy()
@@ -412,7 +415,6 @@ export class DeathStar extends Planet {
   }
 
   onDestroy() {
-    debugger;
     this.screen.globals.canCreateDeathStar = true;
     this.destroyShooter();
     this.destroyOrbits();
@@ -506,4 +508,3 @@ export class Explosion04 extends Explosion {
     this.offsetTo('center');
   }
 }
-

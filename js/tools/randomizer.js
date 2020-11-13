@@ -20,6 +20,8 @@ Randomizer.generator = class {
       onGenerate
     });
 
+    this.picker = new Randomizer.picker({ set: this.generators })
+
     this.start()
   }
 
@@ -69,7 +71,7 @@ Randomizer.generator = class {
   }
 
   getRandomGenerator() {
-    return this.generators[Math.floor(Math.random() * this.generators.length)]
+    return this.picker.pick()
   }
 };
 
