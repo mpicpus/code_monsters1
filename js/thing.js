@@ -33,10 +33,12 @@ export class Thing {
     states = null,
     defaultState = 'idle',
     currentState = 'idle',
+    sharedSprite = null,
     animationSpeed = 'medium',
     extension = 'png',
     level = 1,
     strength = 10,
+    maxStrength = 10,
     damage = 0,
     collides = true,
     preload = false,
@@ -65,10 +67,12 @@ export class Thing {
       states,
       defaultState,
       currentState,
+      sharedSprite,
       animationSpeed,
       extension,
       level,
       strength,
+      maxStrength,
       damage,
       collides,
       preload,
@@ -98,7 +102,10 @@ export class Thing {
       this.rotation += this.speed.angular;
 
     this.setPosition();
+    this.onMove()
   }
+
+  onMove() {}
 
   getName() {
     return !this.name || this.name == '' ? this.underscore(this.constructor.name) : this.name
@@ -152,6 +159,7 @@ export class Thing {
   onImageLoad() {}
 
   onSpritesLoaded() {
+    if (this.dead) return; 
     this.setPosition();
     this.setScale();
     this.setState().then(() => {
@@ -184,6 +192,10 @@ export class Thing {
   destroy() {
     this.remove();
   }
+
+  beforeRemove() {}
+
+  afterRemove() {}
 
   remove() {
     this.screen.things.remove(this);
@@ -291,6 +303,18 @@ export class Thing {
     scale = scale || this.scale;
     this.scale = scale;
     this.sprites.setScale(scale)
+  }
+
+  setScaleFromDimensions(dimensions) {
+    dimensions = dimensions || this.dimensions;
+    if (!dimensions) return;
+
+    let sprite = this.currentSprite();
+    let dimension = Object.keys(dimension)[0];
+    let value = dimensions[dimension];
+
+    let scale = value / sprite[dimension];
+    this.setScale(scale)
   }
 
   setAnimationSpeed(speed) {
@@ -426,6 +450,25 @@ export class Thing {
   onTotalDamage() {
     this.destroy();
   }
+
+  // Functions collections can be collected and reused in "ThingModule" sub-classes.
+  addModule(module) {
+    module.methodNames().forEach( name => this[name] = module.prototype[name] )
+  }
+
+  addModules() {
+    if (!this.modules || this.modules.length == 0) return;
+
+    this.modules.forEach(name => this.addModule(name))
+  }
+}
+
+
+// This class and children will be used to store shared sets across instruction sets.
+export class ThingModule {
+  static methodNames() {
+    return Object.getOwnPropertyNames(this.prototype).filter(n => n != 'constructor')
+  }
 }
 
 
@@ -500,6 +543,10 @@ export class Things {
     thing.screen = this.screen;
     this.collection.push(thing);
     this.families = this.families.concat(thing.family.filter(f => !this.families.includes(f)));
+
+    if (this.screen.scoreboard)
+      this.screen.scoreboard.update();
+
     return thing
   }
 
@@ -513,6 +560,7 @@ export class Things {
 
   // Memory efficient:
   removeThing(thing) {
+    thing.beforeRemove();
     thing.sprites.destroySprites();
     thing.dead = true;
 
@@ -522,8 +570,17 @@ export class Things {
     // Removes 'null' elements from the collection.
     this.collection = this.collection.filter(thing => thing);
 
-    if (thing.family.filter(i => this.screen.scoreboard.allKeys().includes(i)).length > 0)
-      this.screen.scoreboard.updateFigures();
+    // Apply the same logic to targets
+    // potentially created by projectiles.
+    if (this.targets && this.targets.includes(thing)) {
+      delete(this.targets[this.targets.indexOf(thing)]);
+      this.targets = this.targets.filter(thing => thing);
+    }
+
+    if (thing.family.filter(i => this.screen.scoreboard.allKeys().includes(i)).length > 0 && this.screen.scoreboard)
+      this.screen.scoreboard.update();
+
+    thing.afterRemove();
   }
 
   isOutOfTheCanvas(thing) {
@@ -577,3 +634,4 @@ export class Things {
     }
   }
 }
+

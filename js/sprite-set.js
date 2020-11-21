@@ -75,7 +75,10 @@ export class SpriteSet {
   }
 
   getSpriteImage(state, index) {
-    return `assets/screens/${this.thing.getFolder()}${state ? '/' + state + '/' + index : ''}.${this.getFileExtension()}`
+    if (this.thing.sharedSprite)
+      return `${this.thing.screen.getAssetsFolder()}shared/${this.thing.sharedSprite}`
+    else
+      return `assets/screens/${this.thing.getFolder()}${state ? '/' + state + '/' + index : ''}.${this.getFileExtension()}`
   }
 
   getSharedSpriteImage(name, index) {

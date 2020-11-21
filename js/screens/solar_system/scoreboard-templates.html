@@ -1,0 +1,65 @@
+<!-- 
+Templates intended as wrappers can use "scYield" to mark the inner element in which children will be appended
+If no parameter is found, the full element will be chosen. In this case we could have skipped it,
+since there's no inner markup, but added it as an example.
+-->
+<template id="scoreboard-wrapper">
+  <div class="scoreboard-wrapper" scYield></div>
+</template>
+
+
+<!-- 
+Bindings in elements are signaled by the use of the "scBind" parameter.
+Bound values will be extracted from the component's "bindingFunctions" object, 
+with a traditional "dataset" to detail the binding key.
+
+Basic pattern:
+scBind data-{attributeName}="{keyForBindingFunctions}"
+
+Regular attributes such as "href" or "src" will be treated literally.
+Three exceptions:
+  (*) "data-text" and "data-html" translate to "innerText" and "innerHTML" respectively.
+  (*) "data-class" follows a different pattern:
+      the binding function needs to return an object with the following structure:
+      { add: ['class1', 'class2'], remove: ['class3', 'class4'] }
+-->
+<template id="thing-panel-bottom">
+  <div class="panel bottom thing-panel" scBind data-class="panelCssClasses">
+    <div class="info">
+      <div class="name" scBind data-text="::displayName"></div>
+    </div>
+    <div class="image">
+      <img src="" scBind data-src="::imageUrl">
+    </div>
+    <div class="info">
+      <div class="strength" scBind data-text="strength" data-style="strengthStyle" style="width: 0px">0</div>
+    </div>
+  </div>
+</template>
+
+
+
+<template id="count-panel-bottom">
+  <div class="panel bottom count-panel" scBind data-class="panelCssClasses">
+    <div class="info">
+      <div class="count" scBind data-text="count">0</div>
+      <div class="name" scBind data-text="::displayName"></div>
+    </div>
+    <div class="image">
+      <img src="" scBind data-src="::imageUrl">
+    </div>
+  </div>
+</template>
+
+
+
+<template id="tool-panel-right">
+  <div class="panel right fire-panel" scBind data-class="panelCssClasses">
+    <div class="info">
+      <div class="name" scBind data-text="::displayName"></div>
+    </div>
+    <div class="image">
+      <img scBind data-src="::imageUrl" src="">
+    </div>
+  </div>
+</template>

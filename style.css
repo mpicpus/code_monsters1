@@ -3,6 +3,7 @@ html, body {
   height: 100%;
   font-family: sans-serif;
   overflow: hidden;
+  background: black;
 }
 
 .main-wrapper {
@@ -19,6 +20,7 @@ html, body {
   height: 100%;
   width: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 #code-panel {

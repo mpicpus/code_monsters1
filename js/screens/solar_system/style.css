@@ -1,0 +1,115 @@
+.scoreboard-wrapper {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+}
+
+.scoreboard-wrapper.bottom {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin-bottom: -2px;
+}
+
+.scoreboard-wrapper.right {
+  right: 0;
+  height: 100%;
+  margin-right: -2px;
+  top: 0;
+  align-items: center;
+}
+
+.scoreboard-wrapper .panel {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  background-color: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.scoreboard-wrapper .panel:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.scoreboard-wrapper .panel.bottom {
+  position: relative;
+  flex-direction: column;
+  width: 100px;
+  height: 130px;
+  text-align: center;
+  border-radius: 5px 5px 0 0;
+}
+
+.scoreboard-wrapper .panel.right {
+  position: relative;
+  flex-direction: column;
+  width: 100px;
+  height: 130px;
+  text-align: center;
+  border-radius: 5px 0 0 5px;
+}
+
+.scoreboard-wrapper .panel.bottom.count-panel {
+  transition: bottom 300ms;
+  bottom: -140px;
+}
+
+.scoreboard-wrapper .panel.bottom.count-panel.visible {
+  bottom: 0px;
+}
+
+.scoreboard-wrapper .panel.right.fire-panel {
+  transition: right 300ms;
+  right: -100px;
+}
+
+.scoreboard-wrapper .panel.right.fire-panel.visible {
+  right: 0px;
+}
+
+.scoreboard-wrapper .panel .image {
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.scoreboard-wrapper .panel.disabled .image {
+  filter: grayscale(1) brightness(0) contrast(0.5);
+  opacity: 0.7;
+}
+
+.scoreboard-wrapper .panel .info {
+  width: 100%;
+}
+
+.scoreboard-wrapper .panel .name {
+  color: #999;
+  font-size: 17px;
+  font-weight: 100;
+}
+
+.scoreboard-wrapper .panel .count {
+  color: #aaa;
+  font-size: 27px;
+  font-weight: 900;
+}
+
+.scoreboard-wrapper .panel .strength {
+  height: 10px;
+  background: white;
+  color: black;
+  text-align: right;
+  font-size: 10px;
+  font-weight: 900;
+  padding-right: 1px;
+}
+
+.scoreboard-wrapper .panel img{
+  width: 60%;
+}

@@ -46,6 +46,10 @@ export class Screen {
     return this.constructor.name.replace('Screen', '').replace(/([A-Z]+)/g, '_$1').toLowerCase().replace(/^_/, '')
   }
 
+  getAssetsFolder() {
+    return `assets/screens/${this.familyName()}/`;
+  }
+
   // Main game loop, called for each graphic render.
   // Redefine in subclass if needed.
   gameLoop() {
@@ -72,7 +76,7 @@ export class Screen {
     let className = `Screen${toClassName(name)}`;
 
     return new Promise((resolve, reject) => {
-      let url = `/js/screens/${name}/${name}.js`;
+      let url = `/js/screens/${name}/screen.js`;
       import(url).then((module) => {
         if (module && module[className]){
           let instance = new module[className](attrs)
@@ -82,5 +86,3 @@ export class Screen {
     })
   }
 }
-
-window.screen = Screen;

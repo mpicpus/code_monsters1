@@ -1,20 +1,22 @@
-// Collection of randomizer classes.
+// Collection of helper classes (random generators and such).
 export const Randomizer = {};
 
 // Will randomly call any of the source's generators, at random intervals.
 Randomizer.generator = class {
   constructor({
-    source = {},
+    actionSource = {},
     generators = [],
     intervalRange = {min: 150, max: 4000},
+    maxCount = null,
     boost = null,
     attrs = null,
     onGenerate = () => {}
   } = {}) {
     Object.assign(this, {
-      source,
+      actionSource,
       generators,
       intervalRange,
+      maxCount,
       boost,
       attrs,
       onGenerate
@@ -22,11 +24,13 @@ Randomizer.generator = class {
 
     this.picker = new Randomizer.picker({ set: this.generators })
 
-    this.start()
+    // this.start()
   }
 
   start() {
     if (this.state == 'active') return;
+
+    if (this.maxCount) this.count = 0;
     
     this.state = 'active';
     this.generate();
@@ -40,10 +44,18 @@ Randomizer.generator = class {
   generate() {
     let randomTimeout = Math.floor(Math.random() * this.intervalRange.max + this.intervalRange.min);
     setTimeout(() => {
+      if (this.maxCount) {
+        if (this.count == this.maxCount) {
+          this.stop();
+          return
+        } else
+          this.count ++;
+      }
+
       let generator = this.getRandomGenerator();
 
-      this.source[generator](this.attrs);
-      this.onGenerate()
+      this.actionSource[generator](this.attrs);
+      this.onGenerate();
       
       if (this.state == 'active')
         this.generate();
@@ -66,7 +78,7 @@ Randomizer.generator = class {
     let generator = this.getRandomGenerator();
 
     for(let time = 0; time < numOfObjects; time++){
-      this.source[generator]()
+      this.actionSource[generator]()
     }
   }
 
